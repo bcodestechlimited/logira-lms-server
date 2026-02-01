@@ -1,11 +1,11 @@
-import {Router} from "express";
-import {couponController} from "../controllers/coupon.controller";
+import { Router } from "express";
+import { couponController } from "../controllers/coupon.controller";
 import {
   checkUserRole,
   isAuthenticated,
   isLocalAuthenticated,
 } from "../Middlewares/Auth";
-import {apiLimiter} from "../Middlewares/RateLimiter";
+import { apiLimiter } from "../Middlewares/RateLimiter";
 import validateRequest from "../Middlewares/validation.middleware";
 import {
   CouponCheckoutSchema,
@@ -20,7 +20,7 @@ router
     apiLimiter,
     isLocalAuthenticated,
     checkUserRole(["admin", "superadmin"]),
-    couponController.applyCoupon
+    couponController.applyCoupon,
   );
 
 router
@@ -29,7 +29,7 @@ router
     apiLimiter,
     isLocalAuthenticated,
     checkUserRole(["admin", "superadmin"]),
-    couponController.getCouponAnalytics
+    couponController.getCouponAnalytics,
   );
 
 router
@@ -38,7 +38,7 @@ router
     apiLimiter,
     isLocalAuthenticated,
     checkUserRole(["admin", "superadmin"]),
-    couponController.editCoupon
+    couponController.editCoupon,
   );
 
 // test: api
@@ -47,7 +47,7 @@ router.post(
   apiLimiter,
   isAuthenticated,
   validateRequest(CouponCheckoutSchema),
-  couponController.couponCheckout
+  couponController.couponCheckout,
 );
 
 // TODO: UPDTE COUPON STATUS
@@ -57,7 +57,7 @@ router
     apiLimiter,
     isLocalAuthenticated,
     checkUserRole(["admin", "superadmin"]),
-    couponController.updateCouponStatus
+    couponController.updateCouponStatus,
   );
 
 router
@@ -67,13 +67,13 @@ router
     validateRequest(CreateCouponSchema),
     isLocalAuthenticated,
     checkUserRole(["admin", "superadmin"]),
-    couponController.createCoupon
+    couponController.createCoupon,
   )
   .get(
     apiLimiter,
     isLocalAuthenticated,
     checkUserRole(["admin", "superadmin"]),
-    couponController.getCoupons
+    couponController.getCoupons,
   );
 
 router
@@ -82,7 +82,7 @@ router
     apiLimiter,
     isLocalAuthenticated,
     checkUserRole(["admin", "superadmin"]),
-    couponController.getCouponUsers
+    couponController.getCouponUsers,
   );
 
 router
@@ -91,7 +91,7 @@ router
     apiLimiter,
     isLocalAuthenticated,
     checkUserRole(["admin", "superadmin"]),
-    couponController.deleteCoupon
+    couponController.deleteCoupon,
   );
 
 router
@@ -100,13 +100,13 @@ router
     apiLimiter,
     isLocalAuthenticated,
     checkUserRole(["admin", "superadmin"]),
-    couponController.getACouponById
+    couponController.getACouponById,
   )
   .delete(
     apiLimiter,
     isLocalAuthenticated,
     checkUserRole(["admin", "superadmin"]),
-    couponController.softDeleteCoupon
+    couponController.softDeleteCoupon,
   );
 
 export default router;

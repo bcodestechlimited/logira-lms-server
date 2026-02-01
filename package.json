@@ -30,6 +30,7 @@
     "@opentelemetry/sdk-node": "^0.203.0",
     "@opentelemetry/semantic-conventions": "^1.36.0",
     "agenda": "^5.0.0",
+    "auto-bind": "^5.0.1",
     "axios": "^1.7.4",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.4.0",

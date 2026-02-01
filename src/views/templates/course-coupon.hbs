@@ -1,0 +1,68 @@
+{{#> base_template}}
+  {{#*inline "content"}}
+    <h1 style="margin: 0 0 20px 0; font-size: 24px; line-height: 30px; color: #333333; font-weight: 700; text-align: center;">
+      Your Course Coupon is Ready
+    </h1>
+
+    <p style="margin: 0 0 15px 0; font-size: 16px; line-height: 24px; color: #555555;">
+      <strong>Hi {{userName}},</strong>
+    </p>
+
+    <p style="margin: 0 0 18px 0; font-size: 16px; line-height: 24px; color: #555555;">
+      You’ve been issued a coupon for <strong>{{courseTitle}}</strong>. You can use this coupon <strong>once</strong> during checkout.
+    </p>
+
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 20px 0 10px 0;">
+      <tr>
+        <td align="center">
+          <div style="display: inline-block; padding: 14px 18px; border: 1px dashed #FF502A; border-radius: 8px; background: #FFF6F3;">
+            <div style="font-size: 12px; line-height: 18px; color: #777777; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px;">
+              Coupon Code
+            </div>
+
+            <div style="font-size: 22px; line-height: 28px; color: #333333; font-weight: 800; letter-spacing: 1px;">
+              {{couponCode}}
+            </div>
+
+            {{#if discountText}}
+              <div style="margin-top: 6px; font-size: 14px; line-height: 20px; color: #555555; font-weight: 600;">
+                {{discountText}}
+              </div>
+            {{/if}}
+          </div>
+        </td>
+      </tr>
+    </table>
+
+    <p style="margin: 12px 0 24px 0; font-size: 14px; line-height: 21px; color: #777777; text-align: center;">
+      Expires on <strong>{{expiryDate}}</strong>
+    </p>
+
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 28px auto;">
+      <tr>
+        <td align="center" bgcolor="#FF502A" style="border-radius: 4px;">
+          <a href="{{courseUrl}}" target="_blank" style="font-size: 16px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; padding: 15px 30px; border-radius: 4px; border: 1px solid #FF502A; display: inline-block; font-weight: bold;">
+            Go to Course
+          </a>
+        </td>
+      </tr>
+    </table>
+
+    <div style="margin: 20px 0 0 0; padding: 14px 16px; border-radius: 8px; background: #F7F7F7;">
+      <p style="margin: 0 0 10px 0; font-size: 14px; line-height: 21px; color: #555555; font-weight: 700;">
+        How to use your coupon
+      </p>
+      <ol style="margin: 0; padding-left: 18px; font-size: 14px; line-height: 21px; color: #555555;">
+        <li style="margin: 0 0 6px 0;">Open the course page using the button above.</li>
+        <li style="margin: 0 0 6px 0;">Proceed to checkout.</li>
+        <li style="margin: 0 0 6px 0;">Paste the coupon code exactly as shown.</li>
+        <li style="margin: 0;">Complete payment before the expiry date.</li>
+      </ol>
+    </div>
+
+    <p style="margin: 18px 0 0 0; font-size: 12px; line-height: 18px; color: #999999; text-align: center;">
+      This coupon is tied to your email and can only be used once.
+      If you didn’t expect this email, you can ignore it.
+    </p>
+  {{/inline}}
+{{/base_template}}

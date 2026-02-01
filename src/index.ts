@@ -31,6 +31,9 @@ import progressRouter from "./routes/progress.routes.ts";
 import templateRouter from "./routes/template.routes.ts";
 import { startAgenda } from "./Services/scheduler.service.ts";
 import "./utils/tracing.ts";
+import uploadRouter from "./modules/upload/upload.routes.ts";
+import { couponController } from "./modules/coupon/coupon.controller.ts";
+import couponRouter from "./modules/coupon/coupon.routes.ts";
 
 export const nodeClient = new NodeCache({ stdTTL: 100, checkperiod: 120 });
 
@@ -39,7 +42,7 @@ dotenv.config();
 const app: Application = express();
 app.use(express.json({ limit: "15mb" }));
 const logger = pino({
-  level: process.env.NODE_ENV === "production" ? "info" : "debug",
+  level: process.env.NODE_ENV === "production" ? "info" : "info",
 });
 app.use(pinoHttp({ logger }));
 
@@ -58,6 +61,7 @@ app.use(
     createParentPath: true,
     limits: { fileSize: 5 * 1024 * 1024 },
     useTempFiles: true,
+    abortOnLimit: true,
     tempFileDir: "/tmp/",
   }),
 );
@@ -109,12 +113,15 @@ app.use(BASE_URL + "/plans", Planroute);
 app.use(BASE_URL + "/user", UserRoute);
 app.use(BASE_URL + "/course-modules", CourseModuleRouter);
 app.use(BASE_URL + "/coupons", CouponRoute);
+// app.use(BASE_URL + "/coupons", couponRouter);
 app.use(BASE_URL + "/templates", templateRouter);
 app.use(BASE_URL + "/certificates", CertificateRouter);
 app.use(BASE_URL + "/payments", PaymentRoute);
 app.use(BASE_URL + "/admins", AdminRouter);
 app.use(BASE_URL + "/analytics", analyticsRouter);
 app.use(BASE_URL + "/progress", progressRouter);
+app.use(BASE_URL + "/uploads", uploadRouter);
+app.use(BASE_URL + "/course-coupons", couponRouter);
 app.use(BCT_BASE_URL + "/bct-course", BCTCourseRoute);
 
 // Page not found
@@ -131,7 +138,7 @@ const port = process.env.PORT || 8080;
 
 connectDB().then(() => {
   server.listen(port, async () => {
-    console.log(`[SERVER 📢]: Server running on port:${port}`.bgBlack.blue);
+    console.log(`[SERVER 📢]: Server running on port:${port}`);
 
     await startAgenda();
     // seedAdmin().then(() => {

@@ -1,41 +1,279 @@
 {{#> base_template}}
   {{#*inline "content"}}
-  <h1>🎉 Welcome to Your New Course!</h1>
-    
-  <p>Dear {{userName}},</p>
 
-  <p>We're excited to let you know that you've successfully enrolled in <strong>{{courseName}}</strong>! You can start learning immediately through your dashboard.</p>
-
-  <div style="background: #F8FAFC; padding: 20px; border-radius: 8px; margin: 25px 0;">
-    <h3 style="margin-top: 0;">Course Details:</h3>
-    <ul class="features">
-      <li>📚 Course: {{courseName}}</li>
-      <li>👨🏫 Instructor: {{instructorName}}</li>
-    </ul>
+  <!-- Hero Section -->
+  <div style="
+    background: linear-gradient(135deg, #FF502A 0%, #FF6B4A 100%);
+    padding: 40px 30px;
+    border-radius: 12px;
+    text-align: center;
+    margin-bottom: 35px;
+  ">
+    <div style="font-size: 48px; margin-bottom: 10px;">🎉</div>
+    <h1 style="
+      color: white;
+      margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1.3;
+    ">Welcome to Your New Course!</h1>
   </div>
 
-  <div class="button-container">
+  <!-- Greeting -->
+  <p style="
+    font-size: 16px;
+    color: #334155;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  ">Dear <strong>{{userName}}</strong>,</p>
+
+  <p style="
+    font-size: 16px;
+    color: #475569;
+    line-height: 1.7;
+    margin-bottom: 30px;
+  ">We're excited to let you know that you've successfully enrolled in <strong style="color: #FF502A;">{{courseName}}</strong>! You can start learning immediately through your dashboard.</p>
+
+  <!-- Course Details Card -->
+  <div style="
+    background: #F8FAFC;
+    border-left: 4px solid #FF502A;
+    padding: 25px;
+    border-radius: 8px;
+    margin: 30px 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  ">
+    <h3 style="
+      margin: 0 0 18px 0;
+      color: #1E293B;
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+    ">
+      <span style="margin-right: 8px;">📚</span> Course Details
+    </h3>
+    <table style="width: 100%; border-collapse: collapse;">
+      <tr>
+        <td style="
+          padding: 10px 0;
+          color: #64748B;
+          font-size: 14px;
+          font-weight: 500;
+          width: 100px;
+        ">Course:</td>
+        <td style="
+          padding: 10px 0;
+          color: #1E293B;
+          font-size: 15px;
+          font-weight: 600;
+        ">{{courseName}}</td>
+      </tr>
+      <tr>
+        <td style="
+          padding: 10px 0;
+          color: #64748B;
+          font-size: 14px;
+          font-weight: 500;
+        ">Instructor:</td>
+        <td style="
+          padding: 10px 0;
+          color: #1E293B;
+          font-size: 15px;
+          font-weight: 600;
+        ">{{instructorName}}</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- CTA Button -->
+  <div style="text-align: center; margin: 35px 0;">
     <a href="{{dashboardUrl}}" style="
       background: #FF502A;
       color: white;
-      padding: 12px 30px;
+      padding: 16px 40px;
       border-radius: 8px;
       display: inline-block;
+      text-decoration: none;
       font-size: 16px;
       font-weight: 600;
+      box-shadow: 0 4px 12px rgba(255, 80, 42, 0.25);
+      transition: all 0.3s ease;
     ">Start Learning Now →</a>
   </div>
 
-  <h3 style="margin-top: 30px;">What's Next?</h3>
-  <ol style="text-align: left; padding-left: 20px;">
-    <li>Visit your <a href="{{dashboardUrl}}">learning dashboard</a></li>
-    <li>Access course materials 24/7</li>
-    <li>Track your progress</li>
-    <li>Complete assignments</li>
-    <li>Earn your certificate</li>
-  </ol>
+  <!-- Divider -->
+  <div style="
+    height: 1px;
+    background: linear-gradient(to right, transparent, #E2E8F0, transparent);
+    margin: 40px 0;
+  "></div>
 
-  <p style="margin: 25px 0;">Need help getting started?<br>
-  Check our <a href="{{helpCenterEmail}}">Beginner's Guide</a> or reply to this email.</p>
+  <!-- What's Next Section -->
+  <h3 style="
+    margin: 0 0 20px 0;
+    color: #1E293B;
+    font-size: 20px;
+    font-weight: 600;
+  ">What's Next?</h3>
+
+  <div style="
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    overflow: hidden;
+  ">
+    <div style="padding: 8px 0;">
+      <div style="
+        padding: 16px 24px;
+        border-bottom: 1px solid #F1F5F9;
+        display: flex;
+        align-items: start;
+      ">
+        <span style="
+          background: #FF502A;
+          color: white;
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 12px;
+          font-weight: 700;
+          margin-right: 15px;
+          flex-shrink: 0;
+        ">1</span>
+        <span style="color: #475569; font-size: 15px; line-height: 1.6;">
+          Visit your <a href="{{dashboardUrl}}" style="color: #FF502A; text-decoration: none; font-weight: 600;">learning dashboard</a>
+        </span>
+      </div>
+
+      <div style="
+        padding: 16px 24px;
+        border-bottom: 1px solid #F1F5F9;
+        display: flex;
+        align-items: start;
+      ">
+        <span style="
+          background: #FF502A;
+          color: white;
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 12px;
+          font-weight: 700;
+          margin-right: 15px;
+          flex-shrink: 0;
+        ">2</span>
+        <span style="color: #475569; font-size: 15px; line-height: 1.6;">
+          Access course materials 24/7
+        </span>
+      </div>
+
+      <div style="
+        padding: 16px 24px;
+        border-bottom: 1px solid #F1F5F9;
+        display: flex;
+        align-items: start;
+      ">
+        <span style="
+          background: #FF502A;
+          color: white;
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 12px;
+          font-weight: 700;
+          margin-right: 15px;
+          flex-shrink: 0;
+        ">3</span>
+        <span style="color: #475569; font-size: 15px; line-height: 1.6;">
+          Track your progress
+        </span>
+      </div>
+
+      <div style="
+        padding: 16px 24px;
+        border-bottom: 1px solid #F1F5F9;
+        display: flex;
+        align-items: start;
+      ">
+        <span style="
+          background: #FF502A;
+          color: white;
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 12px;
+          font-weight: 700;
+          margin-right: 15px;
+          flex-shrink: 0;
+        ">4</span>
+        <span style="color: #475569; font-size: 15px; line-height: 1.6;">
+          Complete assignments
+        </span>
+      </div>
+
+      <div style="
+        padding: 16px 24px;
+        display: flex;
+        align-items: start;
+      ">
+        <span style="
+          background: #FF502A;
+          color: white;
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 12px;
+          font-weight: 700;
+          margin-right: 15px;
+          flex-shrink: 0;
+        ">5</span>
+        <span style="color: #475569; font-size: 15px; line-height: 1.6;">
+          Earn your certificate
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help Section -->
+  <div style="
+    background: #F8FAFC;
+    padding: 25px;
+    border-radius: 8px;
+    margin: 35px 0 0 0;
+    text-align: center;
+  ">
+    <p style="
+      margin: 0 0 10px 0;
+      color: #475569;
+      font-size: 15px;
+      line-height: 1.6;
+    ">
+      <strong style="color: #1E293B;">Need help getting started?</strong>
+    </p>
+    <p style="
+      margin: 0;
+      color: #64748B;
+      font-size: 14px;
+    ">
+      Check our <a href="{{helpCenterEmail}}" style="color: #FF502A; text-decoration: none; font-weight: 600;">Beginner's Guide</a> or reply to this email.
+    </p>
+  </div>
+
   {{/inline}}
 {{/base_template}}

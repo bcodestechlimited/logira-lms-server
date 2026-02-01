@@ -1,17 +1,17 @@
-import {NextFunction, Response} from "express";
-import {StatusCodes} from "http-status-codes";
+import { NextFunction, Response } from "express";
+import { StatusCodes } from "http-status-codes";
 import paymentService from "../Services/payment.service";
-import {ExtendedRequest} from "../interfaces/auth.interface";
-import {CourseCheckoutInterface} from "../interfaces/payment.interface";
+import { ExtendedRequest } from "../interfaces/auth.interface";
+import { CourseCheckoutInterface } from "../interfaces/payment.interface";
 
 class PaymentController {
   public async courseCheckout(
     req: ExtendedRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) {
     const user = req.user;
-    const {courseId, couponCode} = req.body;
+    const { courseId, couponCode } = req.body;
 
     if (!courseId) {
       return res.status(StatusCodes.BAD_REQUEST).json({

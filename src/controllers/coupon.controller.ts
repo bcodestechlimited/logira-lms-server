@@ -1,22 +1,25 @@
-import {NextFunction, Request, Response} from "express";
-import {StatusCodes} from "http-status-codes";
+import { NextFunction, Request, Response } from "express";
+import { StatusCodes } from "http-status-codes";
 import CouponDTO from "../dtos/coupon.dto";
-import {ExtendedRequest} from "../interfaces/auth.interface";
-import {QueryOptions} from "../interfaces/query";
-import {handleServiceResponse} from "../Middlewares/validation.middleware";
-import {ICoupon} from "../models/coupon.model";
+import { ExtendedRequest } from "../interfaces/auth.interface";
+import { CouponQueryParams } from "../interfaces/coupon.interface";
+import { handleServiceResponse } from "../Middlewares/validation.middleware";
+import { ICoupon } from "../models/coupon.model";
 import Course from "../models/Course";
 import CouponService from "../Services/coupon.service";
-import {ServiceResponse} from "../utils/service-response";
-import {IQueryParams} from "../shared/query.interface";
-import {CouponQueryParams} from "../interfaces/coupon.interface";
+import { ServiceResponse } from "../utils/service-response";
 
 const couponService = new CouponService();
 class CouponController {
   async createCoupon(req: Request, res: Response, next: NextFunction) {
     try {
-      const {discountType, percentage, expirationDate, maximumUsage, courseId} =
-        req.body;
+      const {
+        discountType,
+        percentage,
+        expirationDate,
+        maximumUsage,
+        courseId,
+      } = req.body;
 
       const response = await couponService.createCoupon({
         discountType,
@@ -30,27 +33,27 @@ class CouponController {
       const course = await Course.findByIdAndUpdate(
         courseId,
         {
-          $push: {coupon_codes: response.data._id},
+          $push: { coupon_codes: response.data._id },
         },
-        {new: true}
+        { new: true },
       );
       const data = {
         message: "Coupon Created",
         success: true,
-        data: {coupon: response, course},
+        data: { coupon: response, course },
       };
       handleServiceResponse(
         ServiceResponse.success("Coupon created", data, StatusCodes.CREATED),
-        res
+        res,
       );
     } catch (error) {
       handleServiceResponse(
         ServiceResponse.failure(
           "Internal Server Error",
           null,
-          StatusCodes.INTERNAL_SERVER_ERROR
+          StatusCodes.INTERNAL_SERVER_ERROR,
         ),
-        res
+        res,
       );
     }
   }
@@ -64,16 +67,16 @@ class CouponController {
 
   async updateCouponStatus(req: Request, res: Response, next: NextFunction) {
     try {
-      const {couponId} = req.body;
+      const { couponId } = req.body;
 
       if (!couponId) {
         return handleServiceResponse(
           ServiceResponse.failure(
             "Invalid request",
             null,
-            StatusCodes.BAD_REQUEST
+            StatusCodes.BAD_REQUEST,
           ),
-          res
+          res,
         );
       }
 
@@ -84,40 +87,40 @@ class CouponController {
           ServiceResponse.failure(
             "Request Failed",
             null,
-            StatusCodes.BAD_REQUEST
+            StatusCodes.BAD_REQUEST,
           ),
-          res
+          res,
         );
       }
       const data = new CouponDTO(response.data);
       handleServiceResponse(
         ServiceResponse.success("Success", data, StatusCodes.OK),
-        res
+        res,
       );
     } catch (error) {
       handleServiceResponse(
         ServiceResponse.failure(
           "Internal Server Error",
           null,
-          StatusCodes.INTERNAL_SERVER_ERROR
+          StatusCodes.INTERNAL_SERVER_ERROR,
         ),
-        res
+        res,
       );
     }
   }
 
   async editCoupon(req: Request, res: Response, next: NextFunction) {
     try {
-      const {expirationDate, maximumUsage, couponId} = req.body;
+      const { expirationDate, maximumUsage, couponId } = req.body;
 
       if (!expirationDate && !maximumUsage) {
         return handleServiceResponse(
           ServiceResponse.failure(
             "Invalid request",
             null,
-            StatusCodes.BAD_REQUEST
+            StatusCodes.BAD_REQUEST,
           ),
-          res
+          res,
         );
       }
 
@@ -132,21 +135,21 @@ class CouponController {
       if (!response.success) {
         return handleServiceResponse(
           ServiceResponse.failure(response.message, null, StatusCodes.OK),
-          res
+          res,
         );
       }
       handleServiceResponse(
         ServiceResponse.success("Success", response, StatusCodes.OK),
-        res
+        res,
       );
     } catch (error) {
       handleServiceResponse(
         ServiceResponse.failure(
           "Internal Server Error",
           null,
-          StatusCodes.INTERNAL_SERVER_ERROR
+          StatusCodes.INTERNAL_SERVER_ERROR,
         ),
-        res
+        res,
       );
     }
   }
@@ -162,9 +165,9 @@ class CouponController {
           ServiceResponse.failure(
             "Request Failed",
             null,
-            StatusCodes.BAD_REQUEST
+            StatusCodes.BAD_REQUEST,
           ),
-          res
+          res,
         );
       }
 
@@ -173,25 +176,25 @@ class CouponController {
       handleServiceResponse(
         ServiceResponse.success(
           "Success",
-          {users, length: users.length},
-          StatusCodes.OK
+          { users, length: users.length },
+          StatusCodes.OK,
         ),
-        res
+        res,
       );
     } catch (error) {
       handleServiceResponse(
         ServiceResponse.failure(
           "Interal Server Error",
           null,
-          StatusCodes.INTERNAL_SERVER_ERROR
+          StatusCodes.INTERNAL_SERVER_ERROR,
         ),
-        res
+        res,
       );
     }
   }
 
   async applyCoupon(req: ExtendedRequest, res: Response, next: NextFunction) {
-    const {couponCode, courseId, coursePrice} = req.body;
+    const { couponCode, courseId, coursePrice } = req.body;
     const payload = {
       couponCode,
       courseId,
@@ -206,7 +209,7 @@ class CouponController {
 
   // test: this functionality
   public async couponCheckout(req: Request, res: Response, next: NextFunction) {
-    const {couponCode, courseId} = req.body;
+    const { couponCode, courseId } = req.body;
     const payload = {
       couponCode,
       courseId,
@@ -225,23 +228,23 @@ class CouponController {
           ServiceResponse.failure(
             "Request Failed",
             null,
-            StatusCodes.BAD_REQUEST
+            StatusCodes.BAD_REQUEST,
           ),
-          res
+          res,
         );
       }
       handleServiceResponse(
         ServiceResponse.success("Success", response, StatusCodes.OK),
-        res
+        res,
       );
     } catch (error) {
       handleServiceResponse(
         ServiceResponse.failure(
           "Internal Server Error",
           null,
-          StatusCodes.INTERNAL_SERVER_ERROR
+          StatusCodes.INTERNAL_SERVER_ERROR,
         ),
-        res
+        res,
       );
     }
   }
@@ -250,7 +253,7 @@ class CouponController {
     try {
       const couponId = req.params.id as string;
       if (!couponId) {
-        return res.status(400).json({message: "Coupon id is required"});
+        return res.status(400).json({ message: "Coupon id is required" });
       }
       const response = await couponService.fetchCoupon(couponId, "mongoose");
 
@@ -259,9 +262,9 @@ class CouponController {
           ServiceResponse.success(
             "Coupon not found",
             {},
-            StatusCodes.NOT_FOUND
+            StatusCodes.NOT_FOUND,
           ),
-          res
+          res,
         );
       }
 
@@ -270,16 +273,16 @@ class CouponController {
 
       handleServiceResponse(
         ServiceResponse.success("Success", couponDTO, StatusCodes.OK),
-        res
+        res,
       );
     } catch (error) {
       handleServiceResponse(
         ServiceResponse.failure(
           "Internal Server Error",
           null,
-          StatusCodes.INTERNAL_SERVER_ERROR
+          StatusCodes.INTERNAL_SERVER_ERROR,
         ),
-        res
+        res,
       );
     }
   }
@@ -295,24 +298,24 @@ class CouponController {
           ServiceResponse.failure(
             "Request Failed",
             null,
-            StatusCodes.BAD_REQUEST
+            StatusCodes.BAD_REQUEST,
           ),
-          res
+          res,
         );
       }
 
       handleServiceResponse(
         ServiceResponse.success("Success", null, StatusCodes.OK),
-        res
+        res,
       );
     } catch (error) {
       handleServiceResponse(
         ServiceResponse.failure(
           "Internal Server Error",
           null,
-          StatusCodes.INTERNAL_SERVER_ERROR
+          StatusCodes.INTERNAL_SERVER_ERROR,
         ),
-        res
+        res,
       );
     }
   }
@@ -327,24 +330,24 @@ class CouponController {
           ServiceResponse.failure(
             "Request Failed",
             null,
-            StatusCodes.BAD_REQUEST
+            StatusCodes.BAD_REQUEST,
           ),
-          res
+          res,
         );
       }
 
       handleServiceResponse(
         ServiceResponse.success("Success", null, StatusCodes.OK),
-        res
+        res,
       );
     } catch (error) {
       handleServiceResponse(
         ServiceResponse.failure(
           "Internal Server Error",
           null,
-          StatusCodes.INTERNAL_SERVER_ERROR
+          StatusCodes.INTERNAL_SERVER_ERROR,
         ),
-        res
+        res,
       );
     }
   }

@@ -1,33 +1,33 @@
-import {StatusCodes} from "http-status-codes";
-import mongoose, {FilterQuery} from "mongoose";
-import {v4 as uuidv4} from "uuid";
-import {UserType} from "../interfaces/auth.interface";
+import { StatusCodes } from "http-status-codes";
+import mongoose, { FilterQuery } from "mongoose";
+import { v4 as uuidv4 } from "uuid";
+import { UserType } from "../interfaces/auth.interface";
 import {
   CouponCheckoutInterface,
   CouponQueryParams,
   ProcessCouponInterface,
   SORTABLE,
 } from "../interfaces/coupon.interface";
-import {QueryOptions, QueryResponse} from "../interfaces/query";
+import { QueryOptions, QueryResponse } from "../interfaces/query";
 import Coupon, {
   CouponStatusEnum,
   DiscountType,
   ICoupon,
 } from "../models/coupon.model";
 import Course from "../models/Course";
-import {ICoursePricing} from "../models/course-pricing.model";
+import { ICoursePricing } from "../models/course-pricing.model";
 import {
   ApplyCouponInterface,
   CreateCouponInterface,
 } from "../Schema/coupon.schema";
-import {QueryBuilder} from "../utils/query-builder";
-import {ServiceResponse} from "../utils/service-response";
+import { QueryBuilder } from "../utils/query-builder";
+import { ServiceResponse } from "../utils/service-response";
 import User from "../models/User";
-import {CourseQueryParams, IQueryParams} from "../shared/query.interface";
-import {ApiSuccess} from "../utils/response-handler";
-import {coerceNumber} from "../utils/course-helpers";
-import {toDate} from "../utils/parse.helpers";
-import {paginate} from "../utils/paginate";
+import { CourseQueryParams, IQueryParams } from "../shared/query.interface";
+import { ApiSuccess } from "../utils/response-handler";
+import { coerceNumber } from "../utils/course-helpers";
+import { toDate } from "../utils/parse.helpers";
+import { paginate } from "../utils/paginate";
 
 interface ExtendedCreateCouponInterface extends CreateCouponInterface {
   courseId: string;
@@ -54,7 +54,7 @@ class CouponService {
       throw new Error("Error creating coupon");
     }
 
-    return {data: coupon, message: "Coupon Created"};
+    return { data: coupon, message: "Coupon Created" };
   }
 
   private generateCouponCode(): string {
@@ -85,7 +85,7 @@ class CouponService {
    */
   public async generateUniqueCouponCode(
     prefix: string = "",
-    maxAttempts: number = 5
+    maxAttempts: number = 5,
   ): Promise<string | null> {
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       const randomCode = this.generateCouponCode();
@@ -94,7 +94,7 @@ class CouponService {
         ? `${prefix}-${codeWithChecksum}`
         : codeWithChecksum;
 
-      const existingCoupon = await Coupon.findOne({couponCode: finalCode});
+      const existingCoupon = await Coupon.findOne({ couponCode: finalCode });
       if (!existingCoupon) {
         return finalCode;
       }
@@ -139,7 +139,7 @@ class CouponService {
       | "expirationDate";
 
     const sortOrder = query.sortOrder === "asc" ? 1 : -1;
-    const sort = {[sortBy]: sortOrder};
+    const sort = { [sortBy]: sortOrder };
 
     const filterQuery: Record<string, any> = {};
     if (
@@ -174,16 +174,18 @@ class CouponService {
     }
 
     if (search) {
-      filterQuery.$or = [{couponCode: {$regex: String(search), $options: "i"}}];
+      filterQuery.$or = [
+        { couponCode: { $regex: String(search), $options: "i" } },
+      ];
     }
 
-    const {documents: coupons, pagination} = await paginate<ICoupon>({
+    const { documents: coupons, pagination } = await paginate<ICoupon>({
       model: Coupon,
       query: filterQuery,
       page,
       limit,
       sort,
-      populateOptions: [{path: "courseId", select: "title image"}],
+      populateOptions: [{ path: "courseId", select: "title image" }],
       select: ["-users"],
     });
     return ApiSuccess.ok("Coupons fetched successfully ", {
@@ -193,29 +195,35 @@ class CouponService {
   }
 
   async fetchActiveCoupons(
-    queryOptions: QueryOptions
+    queryOptions: QueryOptions,
   ): Promise<QueryResponse<ICoupon>> {
     const baseQuery = {
       status: "ACTIVE",
-      expirationDate: {$gt: new Date()},
+      expirationDate: { $gt: new Date() },
     } as FilterQuery<ICoupon>;
 
     const queryBuilder = new QueryBuilder<ICoupon>(
       Coupon,
       queryOptions,
-      baseQuery
+      baseQuery,
     );
     return await queryBuilder.execute();
   }
 
-  async updateCoupon({id, updates}: {id: string; updates: Partial<ICoupon>}) {
+  async updateCoupon({
+    id,
+    updates,
+  }: {
+    id: string;
+    updates: Partial<ICoupon>;
+  }) {
     const coupon = await Coupon.findByIdAndUpdate(id, updates, {
       new: true,
       runValidators: true,
     });
 
     if (!coupon) {
-      return {message: "Coupon not found", success: false, data: null};
+      return { message: "Coupon not found", success: false, data: null };
     }
     return {
       message: "Success",
@@ -227,7 +235,7 @@ class CouponService {
   async updateCouponStatus(id: string) {
     const coupon = await Coupon.findById(id).select("-courseId");
     if (!coupon) {
-      return {message: "Coupon not found", success: false, data: null};
+      return { message: "Coupon not found", success: false, data: null };
     }
 
     coupon.status =
@@ -244,7 +252,7 @@ class CouponService {
   }
 
   async getCouponUsers(couponId: string) {
-    const coupon = await Coupon.findById({_id: couponId}).populate("users");
+    const coupon = await Coupon.findById({ _id: couponId }).populate("users");
 
     return {
       message: "Success",
@@ -255,7 +263,7 @@ class CouponService {
 
   async fetchCoupon(
     id: string,
-    type: "mongoose" | "unique"
+    type: "mongoose" | "unique",
   ): Promise<ICoupon | null> {
     let coupon;
     switch (type) {
@@ -263,11 +271,11 @@ class CouponService {
         coupon = await Coupon.findById(id);
         break;
       case "unique":
-        coupon = await Coupon.findOne({couponCode: id});
+        coupon = await Coupon.findOne({ couponCode: id });
         break;
       default:
         throw new Error(
-          "Invalid coupon type provided. Must be 'mongoose' or 'unique'"
+          "Invalid coupon type provided. Must be 'mongoose' or 'unique'",
         );
     }
 
@@ -318,13 +326,14 @@ class CouponService {
     };
   }
 
+  // TODO:
   public async processCoupon(payload: ProcessCouponInterface) {
     const coupon = await this.fetchCoupon(payload.couponCode, "unique");
     if (!coupon) {
       return ServiceResponse.failure(
         "No coupon found",
         null,
-        StatusCodes.NOT_FOUND
+        StatusCodes.NOT_FOUND,
       );
     }
     const checkCouponValidity = this.isCouponValid(coupon);
@@ -333,22 +342,22 @@ class CouponService {
       return ServiceResponse.failure(
         checkCouponValidity.message,
         null,
-        StatusCodes.BAD_REQUEST
+        StatusCodes.BAD_REQUEST,
       );
     }
 
-    const course = await Course.findById({_id: payload.courseId}).populate({
+    const course = await Course.findById({ _id: payload.courseId }).populate({
       path: "course_price",
     });
 
     const isCouponApplicable = course?.coupon_codes.some(
-      (coupon) => coupon._id === coupon._id
+      (coupon) => coupon._id === coupon._id,
     );
     if (!isCouponApplicable) {
       return ServiceResponse.failure(
         "Coupon is not applicable to this course",
         null,
-        StatusCodes.BAD_REQUEST
+        StatusCodes.BAD_REQUEST,
       );
     }
 
@@ -362,7 +371,7 @@ class CouponService {
 
       const discountedPrice = this.calculateDiscountPrice(
         coursePricing as number,
-        coupon.percentage
+        coupon.percentage,
       );
       return ServiceResponse.success(
         "Coupon is valid",
@@ -373,25 +382,25 @@ class CouponService {
             couponDiscount: discountedPrice.discountAmount,
           },
         },
-        StatusCodes.OK
+        StatusCodes.OK,
       );
     } else {
       return ServiceResponse.failure(
         "Error processing coupon",
         null,
-        StatusCodes.BAD_REQUEST
+        StatusCodes.BAD_REQUEST,
       );
     }
   }
 
-  public async applyCoupon(payload: ApplyCouponInterface & {user: UserType}) {
+  public async applyCoupon(payload: ApplyCouponInterface & { user: UserType }) {
     try {
       const coupon = await this.fetchCoupon(payload.couponCode, "unique");
       if (!coupon) {
         return ServiceResponse.failure(
           "No coupon found",
           null,
-          StatusCodes.NOT_FOUND
+          StatusCodes.NOT_FOUND,
         );
       }
       const checkCouponValidity = this.isCouponValid(coupon);
@@ -400,22 +409,22 @@ class CouponService {
         return ServiceResponse.failure(
           checkCouponValidity.message,
           null,
-          StatusCodes.BAD_REQUEST
+          StatusCodes.BAD_REQUEST,
         );
       }
 
-      const course = await Course.findById({_id: payload.courseId}).populate({
+      const course = await Course.findById({ _id: payload.courseId }).populate({
         path: "course_price",
       });
 
       const isCouponApplicable = course?.coupon_codes.some(
-        (coupon) => coupon._id === coupon._id
+        (coupon) => coupon._id === coupon._id,
       );
       if (!isCouponApplicable) {
         return ServiceResponse.failure(
           "Coupon is not applicable to this course",
           null,
-          StatusCodes.BAD_REQUEST
+          StatusCodes.BAD_REQUEST,
         );
       }
 
@@ -429,7 +438,7 @@ class CouponService {
 
         const discountedPrice = this.calculateDiscountPrice(
           coursePricing as number,
-          coupon.percentage
+          coupon.percentage,
         );
 
         // stop here
@@ -438,7 +447,7 @@ class CouponService {
           return ServiceResponse.failure(
             "An error occured while applying coupon",
             null,
-            StatusCodes.BAD_REQUEST
+            StatusCodes.BAD_REQUEST,
           );
         }
 
@@ -460,20 +469,20 @@ class CouponService {
               success: true,
             },
           },
-          StatusCodes.OK
+          StatusCodes.OK,
         );
       } else {
         return ServiceResponse.failure(
           "An error occured while applying coupon",
           null,
-          StatusCodes.BAD_REQUEST
+          StatusCodes.BAD_REQUEST,
         );
       }
     } catch (error) {
       return ServiceResponse.failure(
         "Internal Server Error",
         null,
-        StatusCodes.INTERNAL_SERVER_ERROR
+        StatusCodes.INTERNAL_SERVER_ERROR,
       );
     }
   }
@@ -491,23 +500,26 @@ class CouponService {
       return ServiceResponse.failure(
         "Internal Server Error",
         null,
-        StatusCodes.INTERNAL_SERVER_ERROR
+        StatusCodes.INTERNAL_SERVER_ERROR,
       );
     }
   }
 
-  async getCouponAnalytics(): Promise<{success: boolean; data: {}} | null> {
+  async getCouponAnalytics(): Promise<{ success: boolean; data: {} } | null> {
     const response = await Coupon.aggregate([
       {
         $facet: {
-          allCoupons: [{$count: "count"}],
-          activeCoupons: [{$match: {status: "ACTIVE"}}, {$count: "count"}],
+          allCoupons: [{ $count: "count" }],
+          activeCoupons: [
+            { $match: { status: "ACTIVE" } },
+            { $count: "count" },
+          ],
         },
       },
       {
         $project: {
-          allCoupons: {$arrayElemAt: ["$allCoupons.count", 0]},
-          activeCoupons: {$arrayElemAt: ["$activeCoupons.count", 0]},
+          allCoupons: { $arrayElemAt: ["$allCoupons.count", 0] },
+          activeCoupons: { $arrayElemAt: ["$activeCoupons.count", 0] },
         },
       },
     ]);
@@ -533,7 +545,7 @@ class CouponService {
 
     // Check if user is already enrolled
     const existingEnrollment = user.courseEnrollments?.find(
-      (enrollment) => enrollment.course.toString() === courseId
+      (enrollment) => enrollment.course.toString() === courseId,
     );
 
     if (existingEnrollment) {
@@ -554,7 +566,7 @@ class CouponService {
       // Add user to course participants if not already there
       if (
         !course.participants.includes(
-          userId as unknown as mongoose.Types.ObjectId
+          userId as unknown as mongoose.Types.ObjectId,
         )
       ) {
         course.participants.push(new mongoose.Types.ObjectId(userId));
@@ -564,7 +576,7 @@ class CouponService {
     // Remove from expired courses if it was there
     if (user.expiredCourses?.some((id) => id.toString() === courseId)) {
       user.expiredCourses = user.expiredCourses.filter(
-        (id) => id.toString() !== courseId
+        (id) => id.toString() !== courseId,
       );
     }
 
@@ -584,19 +596,19 @@ class CouponService {
         return ServiceResponse.failure(
           "Coupon not found",
           null,
-          StatusCodes.NOT_FOUND
+          StatusCodes.NOT_FOUND,
         );
       }
       return ServiceResponse.success(
         "Coupon deleted successfully",
         null,
-        StatusCodes.OK
+        StatusCodes.OK,
       );
     } catch (error) {
       return ServiceResponse.failure(
         "Internal Server Error",
         null,
-        StatusCodes.INTERNAL_SERVER_ERROR
+        StatusCodes.INTERNAL_SERVER_ERROR,
       );
     }
   }
@@ -605,26 +617,26 @@ class CouponService {
     try {
       const response = await Coupon.findByIdAndUpdate(
         id,
-        {isDeleted: true},
-        {new: true}
+        { isDeleted: true },
+        { new: true },
       );
       if (!response) {
         return ServiceResponse.failure(
           "Coupon not found",
           null,
-          StatusCodes.NOT_FOUND
+          StatusCodes.NOT_FOUND,
         );
       }
       return ServiceResponse.success(
         "Coupon soft deleted successfully",
         null,
-        StatusCodes.OK
+        StatusCodes.OK,
       );
     } catch (error) {
       return ServiceResponse.failure(
         "Internal Server Error",
         null,
-        StatusCodes.INTERNAL_SERVER_ERROR
+        StatusCodes.INTERNAL_SERVER_ERROR,
       );
     }
   }

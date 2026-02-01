@@ -1,24 +1,27 @@
-import {NextFunction, Response} from "express";
-import {StatusCodes} from "http-status-codes";
+import { NextFunction, Response } from "express";
+import { StatusCodes } from "http-status-codes";
 import mongoose from "mongoose";
-import {ExtendedRequest, LocalUserType} from "../interfaces/auth.interface.ts";
+import {
+  ExtendedRequest,
+  LocalUserType,
+} from "../interfaces/auth.interface.ts";
 import User from "../models/User.ts";
-import {ServiceResponse} from "../utils/service-response.ts";
-import {verifyUserAccessToken} from "../utils/utils-token.ts";
-import {handleServiceResponse} from "./validation.middleware.ts";
+import { ServiceResponse } from "../utils/service-response.ts";
+import { verifyUserAccessToken } from "../utils/utils-token.ts";
+import { handleServiceResponse } from "./validation.middleware.ts";
 
 export const validateUser = async (req: ExtendedRequest, res: Response) => {
   try {
-    res.status(200).json({valid: true});
+    res.status(200).json({ valid: true });
   } catch (error) {
-    res.status(401).json({valid: false});
+    res.status(401).json({ valid: false });
   }
 };
 
 export const isLocalAuthenticated = async (
   req: ExtendedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     let token: string | null = null;
@@ -43,12 +46,14 @@ export const isLocalAuthenticated = async (
     if (!decoded) {
       return res
         .status(401)
-        .json({message: "Unauthorized, Login to access resource"});
+        .json({ message: "Unauthorized, Login to access resource" });
     }
 
     const user = await User.findById(decoded.id).select("+passwordVersion");
     if (!user) {
-      return res.status(404).json({message: "User not found", success: false});
+      return res
+        .status(404)
+        .json({ message: "User not found", success: false });
     }
 
     if (decoded.passwordVersion !== user.passwordVersion) {
@@ -83,7 +88,7 @@ export const isLocalAuthenticated = async (
 export const isAuthenticated = async (
   req: ExtendedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     let token: string | undefined;
@@ -107,12 +112,14 @@ export const isAuthenticated = async (
     if (!decoded) {
       return res
         .status(401)
-        .json({message: "Unauthorized, Login to access resource"});
+        .json({ message: "Unauthorized, Login to access resource" });
     }
 
     const user = await User.findById(decoded.id).select("+passwordVersion");
     if (!user) {
-      return res.status(404).json({message: "User not found", success: false});
+      return res
+        .status(404)
+        .json({ message: "User not found", success: false });
     }
 
     if (decoded.passwordVersion !== user.passwordVersion) {
@@ -142,9 +149,9 @@ export const isAuthenticated = async (
       ServiceResponse.failure(
         "Internal Server Error",
         null,
-        StatusCodes.INTERNAL_SERVER_ERROR
+        StatusCodes.INTERNAL_SERVER_ERROR,
       ),
-      res
+      res,
     );
   }
 };
@@ -178,14 +185,3 @@ export const checkUserRole =
 
     next();
   };
-
-// Validator function
-export const isValidObjectId = (id: any) => {
-  const {ObjectId} = mongoose.Types;
-
-  if (ObjectId.isValid(id)) {
-    if (String(new ObjectId(id)) === id) return true;
-    return false;
-  }
-  return false;
-};

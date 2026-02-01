@@ -57,6 +57,8 @@ const APP_CONFIG = Object.freeze({
   SUPPORT_EMAIL: process.env.SUPPORT_EMAIL,
   COMPANY_NAME: process.env.COMPANY_NAME || "Logira LMS",
   LOGO_URL: process.env.LOGO_URL,
+  UPLOAD_BASE_NAMESPACE: process.env.UPLOAD_BASE_NAMESPACE || "uploads",
+  UPLOAD_DEFAULT_ENTITY: process.env.UPLOAD_DEFAULT_ENTITY || "default",
 } as const);
 
 export { APP_CONFIG };

@@ -1,14 +1,14 @@
-import {StatusCodes} from "http-status-codes";
+import { StatusCodes } from "http-status-codes";
 import mongoose from "mongoose";
-import {APP_CONFIG} from "../config/app.config";
-import {CourseCheckoutInterface} from "../interfaces/payment.interface";
-import {CouponStatusEnum} from "../models/coupon.model";
+import { APP_CONFIG } from "../config/app.config";
+import { CourseCheckoutInterface } from "../interfaces/payment.interface";
+import { CouponStatusEnum } from "../models/coupon.model";
 import Course from "../models/Course";
-import {ICoursePricing} from "../models/course-pricing.model";
+import { ICoursePricing } from "../models/course-pricing.model";
 import User from "../models/User";
-import {ServiceResponse} from "../utils/service-response";
-import {couponService} from "./coupon.service";
-import {emailService} from "./mail.service";
+import { ServiceResponse } from "../utils/service-response";
+import { couponService } from "./coupon.service";
+import { emailService } from "./mail.service";
 
 class PaymentService {
   public async courseCheckout(payload: CourseCheckoutInterface) {
@@ -24,7 +24,7 @@ class PaymentService {
         return ServiceResponse.failure(
           "No course found",
           null,
-          StatusCodes.NOT_FOUND
+          StatusCodes.NOT_FOUND,
         );
       }
 
@@ -40,21 +40,21 @@ class PaymentService {
         return ServiceResponse.failure(
           "Course pricing information not available",
           null,
-          StatusCodes.BAD_REQUEST
+          StatusCodes.BAD_REQUEST,
         );
       }
 
       if (payload.couponCode) {
         const coupon = await couponService.fetchCoupon(
           payload.couponCode,
-          "unique"
+          "unique",
         );
 
         if (!coupon) {
           return ServiceResponse.failure(
             "Invalid coupon code",
             null,
-            StatusCodes.BAD_REQUEST
+            StatusCodes.BAD_REQUEST,
           );
         }
 
@@ -64,25 +64,25 @@ class PaymentService {
           return ServiceResponse.failure(
             couponValidity.message,
             null,
-            StatusCodes.BAD_REQUEST
+            StatusCodes.BAD_REQUEST,
           );
         }
 
         const isCouponApplicable = course?.coupon_codes.some(
-          (code) => code._id.toString() === coupon.id.toString()
+          (code) => code._id.toString() === coupon.id.toString(),
         );
 
         if (!isCouponApplicable) {
           return ServiceResponse.failure(
             "Coupon is not applicable to this course",
             null,
-            StatusCodes.BAD_REQUEST
+            StatusCodes.BAD_REQUEST,
           );
         }
 
         const priceDetails = couponService.calculateDiscountPrice(
           originalPrice,
-          coupon.percentage
+          coupon.percentage,
         );
         discountedPrice = priceDetails.price;
 
@@ -105,7 +105,7 @@ class PaymentService {
       if (isFreeEnrollment) {
         await couponService.enrollUserWithPerpetualAccess(
           payload.userId,
-          payload.courseId
+          payload.courseId,
         );
 
         await emailService.sendEmailTemplate({
@@ -131,7 +131,7 @@ class PaymentService {
               discount: originalPrice,
             },
           },
-          StatusCodes.OK
+          StatusCodes.OK,
         );
       } else {
         /**
@@ -149,14 +149,14 @@ class PaymentService {
               requiresPayment: true,
             },
           },
-          StatusCodes.OK
+          StatusCodes.OK,
         );
       }
     } catch (error) {
       return ServiceResponse.failure(
         "Internal Server Error",
         null,
-        StatusCodes.INTERNAL_SERVER_ERROR
+        StatusCodes.INTERNAL_SERVER_ERROR,
       );
     }
   }
