@@ -40,7 +40,7 @@ export const nodeClient = new NodeCache({ stdTTL: 100, checkperiod: 120 });
 dotenv.config();
 
 const app: Application = express();
-app.use(express.json({ limit: "15mb" }));
+app.use(express.json({ limit: "200mb" }));
 const logger = pino({
   level: process.env.NODE_ENV === "production" ? "info" : "info",
 });
@@ -54,12 +54,12 @@ app.use(
     credentials: true,
   }),
 );
-app.use(express.urlencoded({ extended: true, limit: "15mb" }));
+app.use(express.urlencoded({ extended: true, limit: "200mb" }));
 app.use(cookieParser());
 app.use(
   fileUpload({
     createParentPath: true,
-    limits: { fileSize: 5 * 1024 * 1024 },
+    limits: { fileSize: 200 * 1024 * 1024 },
     useTempFiles: true,
     abortOnLimit: true,
     tempFileDir: "/tmp/",
