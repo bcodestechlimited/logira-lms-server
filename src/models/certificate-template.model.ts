@@ -1,4 +1,4 @@
-import {Document, Schema, model} from "mongoose";
+import { Document, Schema, model } from "mongoose";
 
 export interface ICertificateTemplate extends Document {
   publicId: string;
@@ -10,16 +10,18 @@ export interface ICertificateTemplate extends Document {
 
 const CertificateTemplateSchema = new Schema<ICertificateTemplate>(
   {
-    publicId: {type: String, required: true, unique: true},
-    url: {type: String, required: true},
-    uploadedAt: {type: Date, default: () => new Date()},
+    publicId: { type: String, required: true, unique: true },
+    url: { type: String, required: true },
+    uploadedAt: { type: Date, default: () => new Date() },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-export default model<ICertificateTemplate>(
+const CertificateTemplate = model<ICertificateTemplate>(
   "CertificateTemplate",
-  CertificateTemplateSchema
+  CertificateTemplateSchema,
 );
+
+export default CertificateTemplate;

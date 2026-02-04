@@ -7,11 +7,13 @@ import {
 } from "./upload.helpers";
 import { ApiSuccess } from "../../utils/response-handler";
 import { APP_CONFIG } from "../../config/app.config";
+import cloudinary from "../../config/cloudinary.config";
 
 export class UploadService {
   constructor() {
     autoBind(this);
   }
+
   public async createSignature({
     userKey,
     fileBase,
@@ -92,4 +94,35 @@ export class UploadService {
       upload_preset,
     });
   }
+
+  public uploadPdfToCloudinary = (
+    pdfBuffer: Buffer,
+    options?: {
+      folder?: string;
+      publicId?: string;
+    },
+  ): Promise<{ secureUrl: string; publicId: string }> => {
+    return new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        {
+          resource_type: "raw",
+          folder: options?.folder ?? "certificates",
+          public_id: options?.publicId,
+          format: "pdf",
+        },
+        (error, result) => {
+          if (error || result) {
+            return reject(error);
+          }
+
+          resolve({
+            secureUrl: result!.secure_url,
+            publicId: result!.public_id,
+          });
+        },
+      );
+
+      stream.end(pdfBuffer);
+    });
+  };
 }
