@@ -31,4 +31,12 @@ certificateRouter
     certificateController.getCertificateSignature,
   );
 
+certificateRouter
+  .route("/")
+  .get(
+    apiLimiter,
+    isLocalAuthenticated,
+    certificateController.getStudentCertificate,
+  );
+
 export default certificateRouter;

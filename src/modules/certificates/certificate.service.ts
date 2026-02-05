@@ -247,6 +247,26 @@ export class CertificateService {
       StatusCodes.CREATED,
     );
   };
+
+  public async getStudentCertificate(userId: string) {
+    const certificate = await CertificateModel.find({
+      student: userId,
+    }).populate("course", "image");
+
+    if (!certificate) {
+      return ServiceResponse.failure(
+        "Certificate not found",
+        null,
+        StatusCodes.NOT_FOUND,
+      );
+    }
+
+    return ServiceResponse.success(
+      "Certificate retrieved successfully",
+      { data: certificate },
+      StatusCodes.OK,
+    );
+  }
 }
 
 export const certificateService = new CertificateService();

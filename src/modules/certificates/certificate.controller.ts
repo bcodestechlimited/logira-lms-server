@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { certificateService, CertificateService } from "./certificate.service";
+import { ExtendedRequest } from "../../interfaces/auth.interface";
 
 export class CertificateController {
   constructor(private certificateService: CertificateService) {}
@@ -36,6 +37,17 @@ export class CertificateController {
       message: "Active certificate signature retrieved successfully",
       data: result,
     });
+  };
+
+  public getStudentCertificate = async (
+    req: ExtendedRequest,
+    res: Response,
+  ) => {
+    const user = req.user;
+    const result = await this.certificateService.getStudentCertificate(
+      user?._id,
+    );
+    res.status(200).json(result);
   };
 }
 
