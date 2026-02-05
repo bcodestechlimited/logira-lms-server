@@ -25,7 +25,7 @@ import {
   generateRandomPassword,
 } from "../utils/lib";
 import { ServiceResponse } from "../utils/service-response";
-import { certificateService } from "./certificate.service";
+// import { certificateService } from "./certificate.service";
 import { fileParserService } from "./file-parser.service";
 import { emailService } from "./mail.service";
 import Coupon from "../models/coupon.model";
@@ -35,6 +35,7 @@ import { paginate } from "../utils/paginate";
 import { ApiSuccess } from "../utils/response-handler";
 import { agenda } from "./scheduler.service";
 import DailyUploadStats from "../modules/daily-stats/daily-stats.model";
+import { certificateService } from "../modules/certificates/certificate.service";
 
 class CourseService {
   public async getAllStudentCourses(query: CourseQueryParams) {
@@ -638,10 +639,11 @@ class CourseService {
         progress.status = CourseStatusEnum.COMPLETED;
         progress.completedAt = new Date();
         if (!progress.certificateIssued) {
-          const emailResponse = await certificateService.issueCertificate(
-            userId,
-            courseId,
-          );
+          // const emailResponse = await certificateService.issueCertificate(
+          //   userId,
+          //   courseId,
+          // );
+          await certificateService.issueCertificate(userId, courseId);
 
           progress.certificateIssued = true;
         }
@@ -677,6 +679,7 @@ class CourseService {
         StatusCodes.OK,
       );
     } catch (error) {
+      console.log("error", error);
       await session.abortTransaction();
       return ServiceResponse.failure(
         "Internal Server Error",

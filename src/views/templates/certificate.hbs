@@ -1,31 +1,51 @@
-<h1>Congratulations on Completing "{{courseTitle}}"!</h1>
+{{#> base_template}}
+{{#*inline "content"}}
 
-<p>Dear {{userName}},</p>
+<div style="text-align: center; padding: 20px 0;">
+  <h1 style="color: #2c3e50; font-size: 28px; margin: 0 0 10px 0;">🎓 Certificate Earned!</h1>
+</div>
 
-<p>We are thrilled to inform you that you have successfully completed the course
-  "{{courseTitle}}" on Logira Academy. Your dedication and hard work have paid off,
-  and we're excited to present you with your official Certificate of Completion.</p>
+<p style="color: #34495e; font-size: 16px; line-height: 1.6;">Hi {{userName}},</p>
 
-<p>Your certificate has been attached to this email for your convenience. You
-  can also access it anytime through your student dashboard.</p>
+<p style="color: #34495e; font-size: 16px; line-height: 1.6;">
+  Congratulations! You have successfully completed <strong>{{courseTitle}}</strong> on Logira Academy.
+  Your hard work and dedication have earned you an official Certificate of Completion.
+</p>
 
-{{!-- <div class="button-container">
-  <a href="{{viewCertificateUrl}}/certificates/view/{{certificateId}}">VIEW
-    CERTIFICATE ONLINE</a>
-</div> --}}
+<div style="text-align: center; margin: 30px 0;">
+  <a href="{{certificateUrl}}"
+     style="background-color: #3498db;
+            color: white;
+            padding: 14px 32px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            display: inline-block;">
+    View Certificate
+  </a>
+</div>
 
-<p>This certificate serves as verification of your accomplishment and the skills
-  you've acquired through this course. You can add this achievement to your
-  resume, LinkedIn profile, or professional portfolio.</p>
+<div style="background-color: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 20px 0;">
+  <p style="margin: 5px 0; color: #5a6c7d; font-size: 14px;">
+    <strong>Course:</strong> {{courseTitle}}
+  </p>
+  <p style="margin: 5px 0; color: #5a6c7d; font-size: 14px;">
+    <strong>Issued:</strong> {{issueDate}}
+  </p>
+</div>
 
-<h3>What's Next?</h3>
+<p style="color: #34495e; font-size: 16px; line-height: 1.6;">
+  You can access your certificate anytime through the link above or via your student dashboard.
+  Feel free to share this achievement on your resume, LinkedIn profile, or professional portfolio.
+</p>
 
-<ul class="features">
-  <li>✅ Explore more courses in our catalog to continue your learning journey</li>
-  <li>✅ Share your achievement with your network</li>
-  <li>✅ Apply your new skills to real-world projects</li>
-</ul>
+<p style="color: #34495e; font-size: 16px; line-height: 1.6;">
+  Thank you for choosing Logira Academy. We're proud of your accomplishment and look forward to
+  supporting your continued learning journey!
+</p>
 
-<p>Thank you for choosing Logira Academy for your educational needs. We're proud of
-  your achievement and look forward to supporting your continued growth and
-  success.</p>
+{{/inline}}
+{{/base_template}}

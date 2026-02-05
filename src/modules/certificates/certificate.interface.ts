@@ -15,6 +15,8 @@ export interface CertificateModelInterface extends Document {
   issuedAt: Date;
   pdfUrl: string;
   cloudinaryPublicId: string;
+  signaturePublicId: string;
+  signatureUrl: string;
   status: CertificateModelStatusEnum;
   revokedAt: Date;
   revokedReason: string;

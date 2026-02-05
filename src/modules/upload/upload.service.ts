@@ -95,34 +95,28 @@ export class UploadService {
     });
   }
 
-  public uploadPdfToCloudinary = (
-    pdfBuffer: Buffer,
-    options?: {
-      folder?: string;
-      publicId?: string;
-    },
-  ): Promise<{ secureUrl: string; publicId: string }> => {
-    return new Promise((resolve, reject) => {
+  uploadPdfBufferToCloudinary = async (args: {
+    pdfBuffer: Buffer;
+    folder: string;
+    publicId: string;
+  }) => {
+    return new Promise<{ publicId: string; url: string }>((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
         {
           resource_type: "raw",
-          folder: options?.folder ?? "certificates",
-          public_id: options?.publicId,
+          folder: args.folder,
+          public_id: args.publicId,
           format: "pdf",
         },
-        (error, result) => {
-          if (error || result) {
-            return reject(error);
-          }
-
-          resolve({
-            secureUrl: result!.secure_url,
-            publicId: result!.public_id,
-          });
+        (err, result) => {
+          if (err || !result) return reject(err);
+          resolve({ publicId: result.public_id, url: result.secure_url });
         },
       );
 
-      stream.end(pdfBuffer);
+      stream.end(args.pdfBuffer);
     });
   };
 }
+
+export const uploadService = new UploadService();

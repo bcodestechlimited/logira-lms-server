@@ -11,12 +11,13 @@ export const CERTIFICATE_TEMPLATE = {
     // Student full name (where "Ishola Damilola" is)
     // Intended behavior: center align, shrink-to-fit then wrap up to 2 lines
     studentNameBox: {
-      x: 185,
-      y: 366.89,
+      x: 135,
+      y: 380.89,
       width: 270,
       height: 70,
       maxLines: 2,
-      fontSize: 24, // start here (template name text ~24)
+      fontWeight: "bold",
+      fontSize: 18, // start here (template name text ~24)
       minFontSize: 16, // shrink down to this before wrapping/truncation
       lineHeight: 26, // spacing between lines when wrapped
       align: "center" as const,
@@ -25,11 +26,12 @@ export const CERTIFICATE_TEMPLATE = {
     // Course title (where "LEARNING & DEVELOPMENT." is)
     // Intended behavior: wrap up to 3 lines, and optionally shrink if too many lines
     courseTitleBox: {
-      x: 185,
-      y: 286.89,
+      x: 115,
+      y: 300.89,
       width: 270,
       height: 80,
       maxLines: 3,
+      fontWeight: "bold",
       fontSize: 15, // template title text ~14–15
       minFontSize: 11,
       lineHeight: 18,
@@ -38,16 +40,16 @@ export const CERTIFICATE_TEMPLATE = {
 
     // Issued date (value goes on the line ABOVE the "Issued on" label)
     issuedOnValue: {
-      x: 130, // centered above the left line
-      y: 171.89,
+      x: 90, // centered above the left line
+      y: 161,
       fontSize: 12,
       align: "center" as const,
     },
 
     // Certificate number (value goes on the line ABOVE the "Certificate Number" label)
     certificateNumberValue: {
-      x: 420, // centered above the right line
-      y: 171.89,
+      x: 385, // centered above the right line
+      y: 161,
       fontSize: 12,
       align: "center" as const,
     },
@@ -55,8 +57,8 @@ export const CERTIFICATE_TEMPLATE = {
     // Signature image for Head, Learning & Development
     // This box sits above the "Head, Learning & Development, ..." text
     signatureBox: {
-      x: 210,
-      y: 141.89,
+      x: 147,
+      y: 99.32,
       width: 170,
       height: 60,
       fit: "contain" as const, // preserve aspect ratio

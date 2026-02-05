@@ -1,4 +1,3 @@
-// modules/certificates/certificate.renderer.ts
 import fs from "fs/promises";
 import path from "path";
 import { PDFDocument, PDFFont, PDFPage, rgb, StandardFonts } from "pdf-lib";
@@ -9,9 +8,8 @@ import { CERTIFICATE_TEMPLATE } from "./certificate.config";
 export type RenderCertificateInput = {
   studentName: string;
   courseTitle: string;
-  issuedOn: Date; // you can format before passing if you prefer
+  issuedOn: Date;
   certificateNumber: string;
-  // Optional: allow passing a signature image (PNG = Portable Network Graphics) path/buffer
   signaturePngBytes?: Uint8Array;
 };
 

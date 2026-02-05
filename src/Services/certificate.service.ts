@@ -1,19 +1,19 @@
 import axios from "axios";
 import fs from "fs/promises";
-import {StatusCodes} from "http-status-codes";
+import { StatusCodes } from "http-status-codes";
 import path from "path";
-import {PDFDocument, StandardFonts, rgb} from "pdf-lib";
+import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import CertificateTemplate from "../models/certificate-template.model";
 import Certificate from "../models/certificate.model";
 import Course from "../models/Course";
 import CourseCompletion from "../models/course-completion.model";
-import User, {IUserBase} from "../models/User";
-import {IQueryParams, UserSortBy} from "../shared/query.interface";
-import {coerceNumber} from "../utils/course-helpers";
-import {paginate} from "../utils/paginate";
-import {ApiSuccess} from "../utils/response-handler";
-import {ServiceResponse} from "../utils/service-response";
-import {emailService} from "./mail.service";
+import User, { IUserBase } from "../models/User";
+import { IQueryParams, UserSortBy } from "../shared/query.interface";
+import { coerceNumber } from "../utils/course-helpers";
+import { paginate } from "../utils/paginate";
+import { ApiSuccess } from "../utils/response-handler";
+import { ServiceResponse } from "../utils/service-response";
+import { emailService } from "./mail.service";
 
 const UPLOAD_ROOT = path.join(process.cwd(), "uploads");
 const CERT_FOLDER = "certificates";
@@ -30,7 +30,7 @@ class CertificateService {
         return ServiceResponse.failure(
           "User or course not found",
           null,
-          StatusCodes.NOT_FOUND
+          StatusCodes.NOT_FOUND,
         );
       }
 
@@ -38,7 +38,7 @@ class CertificateService {
         return ServiceResponse.failure(
           "User or course not found",
           null,
-          StatusCodes.NOT_FOUND
+          StatusCodes.NOT_FOUND,
         );
       }
 
@@ -66,11 +66,11 @@ class CertificateService {
       const pdfBuffer: Buffer = await this.generatePDF(
         fullName,
         course.title,
-        issueDate
+        issueDate,
       );
 
       const certDir = path.join(UPLOAD_ROOT, CERT_FOLDER);
-      await fs.mkdir(certDir, {recursive: true});
+      await fs.mkdir(certDir, { recursive: true });
 
       const fileName = `cert-${userId}-${courseId}-${Date.now()}.pdf`;
       const savePath = path.join(certDir, fileName);
@@ -78,7 +78,7 @@ class CertificateService {
       const uint8 = new Uint8Array(
         pdfBuffer.buffer,
         pdfBuffer.byteOffset,
-        pdfBuffer.byteLength
+        pdfBuffer.byteLength,
       );
       await fs.writeFile(savePath, uint8);
 
@@ -111,19 +111,18 @@ class CertificateService {
         ],
       };
       const emailResponse = await emailService.sendEmailTemplate(emailPayload);
-      console.log("from the service", {emailResponse});
 
       return ServiceResponse.success(
         "Certificate issued successfully",
-        {data: pdfBuffer},
-        StatusCodes.OK
+        { data: pdfBuffer },
+        StatusCodes.OK,
       );
     } catch (error) {
       console.log("error", error);
       return ServiceResponse.failure(
         "Failed to issue certificate",
         null,
-        StatusCodes.INTERNAL_SERVER_ERROR
+        StatusCodes.INTERNAL_SERVER_ERROR,
       );
     }
   }
@@ -132,7 +131,7 @@ class CertificateService {
   public async generatePDF(
     studentName: string,
     courseTitle: string,
-    issueDate: string
+    issueDate: string,
   ): Promise<Buffer> {
     // 1) Load template
     const templateBuffer = await this.fetchTemplateBuffer();
@@ -175,7 +174,7 @@ class CertificateService {
 
     // 3) Overlay fallback with neat typography
     const page = pdfDoc.getPages()[0];
-    const {width, height} = page.getSize();
+    const { width, height } = page.getSize();
 
     // Fonts: try custom TTFs (assets/fonts), fall back to standard fonts
     const fontsDir = path.join(process.cwd(), "assets", "fonts");
@@ -239,7 +238,7 @@ class CertificateService {
         align: "left" | "center" | "right";
         font: any;
         color?: any;
-      }
+      },
     ) => {
       const px = width * cfg.x;
       const py = height * cfg.y;
@@ -261,10 +260,10 @@ class CertificateService {
     };
 
     // Render text
-    drawText(studentName, {...POS.studentName, font: fontName});
-    drawText(courseTitle, {...POS.courseTitle, font: fontBody});
-    drawText(issueDate, {...POS.issueDate, font: fontBody});
-    drawText(certificateNumber, {...POS.certNumber, font: fontBody});
+    drawText(studentName, { ...POS.studentName, font: fontName });
+    drawText(courseTitle, { ...POS.courseTitle, font: fontBody });
+    drawText(issueDate, { ...POS.issueDate, font: fontBody });
+    drawText(certificateNumber, { ...POS.certNumber, font: fontBody });
 
     const pdfBytes = await pdfDoc.save();
     return Buffer.from(pdfBytes);
@@ -286,7 +285,7 @@ class CertificateService {
     text: string,
     font: any,
     initialSize: number,
-    maxWidth: number
+    maxWidth: number,
   ) {
     let size = initialSize;
     while (size > 8 && font.widthOfTextAtSize(text, size) > maxWidth) {
@@ -308,11 +307,11 @@ class CertificateService {
       const pdfBuffer: Buffer = await this.generatePDF(
         fullName,
         courseTitle,
-        issueDate
+        issueDate,
       );
 
       const certDir = path.join(UPLOAD_ROOT, CERT_FOLDER);
-      await fs.mkdir(certDir, {recursive: true});
+      await fs.mkdir(certDir, { recursive: true });
 
       const fileName = `cert-${userId}-${courseId}-${Date.now()}.pdf`;
       const savePath = path.join(certDir, fileName);
@@ -320,7 +319,7 @@ class CertificateService {
       const uint8 = new Uint8Array(
         pdfBuffer.buffer,
         pdfBuffer.byteOffset,
-        pdfBuffer.byteLength
+        pdfBuffer.byteLength,
       );
       await fs.writeFile(savePath, uint8);
 
@@ -357,13 +356,13 @@ class CertificateService {
       return ServiceResponse.success(
         "Certificate issued successfully",
         null,
-        StatusCodes.OK
+        StatusCodes.OK,
       );
     } catch (error) {
       return ServiceResponse.failure(
         "Failed to issue certificate",
         null,
-        StatusCodes.INTERNAL_SERVER_ERROR
+        StatusCodes.INTERNAL_SERVER_ERROR,
       );
     }
   }
@@ -379,9 +378,9 @@ class CertificateService {
     const filterQuery: Record<string, any> = {};
     if (search) {
       filterQuery.$or = [
-        {firstName: {$regex: search, $options: "i"}},
-        {lastName: {$regex: search, $options: "i"}},
-        {email: {$regex: search, $options: "i"}},
+        { firstName: { $regex: search, $options: "i" } },
+        { lastName: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
       ];
     }
 
@@ -397,7 +396,7 @@ class CertificateService {
         break;
     }
 
-    const {documents: users, pagination} = await paginate<IUserBase>({
+    const { documents: users, pagination } = await paginate<IUserBase>({
       model: User,
       query: filterQuery,
       page,
@@ -422,11 +421,11 @@ class CertificateService {
       sort?: any;
     };
   }) {
-    const query = {userId};
+    const query = { userId };
     const certificates = await Certificate.paginate(query, {
       page: options.page,
       limit: options.limit,
-      sort: options.sort || {issuedAt: -1},
+      sort: options.sort || { issuedAt: -1 },
       populate: {
         path: "courseId",
         select: "title image",
