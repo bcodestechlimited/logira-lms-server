@@ -1,41 +1,59 @@
-import { v2 as cloudinary } from "cloudinary";
+import { v2 as cloudinary, UploadApiErrorResponse } from "cloudinary";
 import { APP_CONFIG } from "../config/app.config";
-import fs from "fs";
+import path from "path";
+import fs from "fs/promises";
+import crypto from "crypto";
+import { UploadApiResponse } from "cloudinary";
+
+cloudinary.config({
+  cloud_name: APP_CONFIG.CLOUDINARY_NAME,
+  api_key: APP_CONFIG.CLOUDINARY_API_KEY,
+  api_secret: APP_CONFIG.CLOUDINARY_SECRET,
+});
+
+export const moveToSafeTemp = async (file: any) => {
+  const ext = path.extname(file.name);
+  const safePath = path.join(
+    process.cwd(),
+    "uploads",
+    `${crypto.randomUUID()}${ext}`,
+  );
+
+  await fs.mkdir(path.dirname(safePath), { recursive: true });
+  await fs.rename(file.tempFilePath, safePath);
+
+  return safePath;
+};
 
 export const uploadToCloudinary = async (
-  tempFilePath: string,
+  filePath: string,
   options: {
     folderName: string;
     resourceType: "image" | "video" | "raw";
     format?: string;
     overwrite?: boolean;
     public_id?: string;
-  }
+  },
 ) => {
-  try {
-    cloudinary.config({
-      cloud_name: APP_CONFIG.CLOUDINARY_NAME,
-      api_key: APP_CONFIG.CLOUDINARY_API_KEY,
-      api_secret: APP_CONFIG.CLOUDINARY_SECRET,
-    });
+  const result = await new Promise<UploadApiResponse>((resolve, reject) => {
+    cloudinary.uploader.upload_large(
+      filePath,
+      {
+        use_filename: true,
+        folder: options.folderName,
+        chunk_size: 7_000_000, // >= 5MB recommended
+        resource_type: options.resourceType,
+        format: options.format,
+        overwrite: options.overwrite,
+        public_id: options.public_id,
+      },
+      (err?: UploadApiErrorResponse, res?: UploadApiResponse) => {
+        if (err) return reject(err);
+        if (!res) return reject(new Error("Cloudinary returned no response"));
+        resolve(res);
+      },
+    );
+  });
 
-    if (!fs.existsSync(tempFilePath)) {
-      throw new Error(`File not found: ${tempFilePath}`);
-    }
-
-    const result = await cloudinary.uploader.upload(tempFilePath, {
-      use_filename: true,
-      folder: options.folderName,
-      chunk_size: 6000000,
-      resource_type: options.resourceType,
-    });
-
-    fs.unlinkSync(tempFilePath);
-
-    return result.secure_url;
-  } catch (error) {
-    console.log({error});
-    throw error;
-  }
+  return result.secure_url;
 };
-

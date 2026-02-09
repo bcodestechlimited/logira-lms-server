@@ -1,7 +1,7 @@
-import {Router} from "express";
-import {courseModuleController} from "../controllers/course-module.controller";
-import {checkUserRole, isAuthenticated} from "../Middlewares/Auth";
-import {apiLimiter} from "../Middlewares/RateLimiter";
+import { Router } from "express";
+import { courseModuleController } from "../controllers/course-module.controller";
+import { checkUserRole, isAuthenticated } from "../Middlewares/Auth";
+import { apiLimiter } from "../Middlewares/RateLimiter";
 
 const router = Router();
 
@@ -9,7 +9,7 @@ router.post(
   "/:moduleId/complete",
   apiLimiter,
   isAuthenticated,
-  courseModuleController.markModuleCompleted
+  courseModuleController.markModuleCompleted,
 );
 
 /**
@@ -21,7 +21,7 @@ router
     apiLimiter,
     isAuthenticated,
     checkUserRole(["admin", "superadmin"]),
-    courseModuleController.create
+    courseModuleController.create,
   );
 
 router
@@ -30,14 +30,14 @@ router
     isAuthenticated,
     apiLimiter,
     checkUserRole(["admin", "superadmin"]),
-    courseModuleController.update
+    courseModuleController.update,
   )
   .get(isAuthenticated, apiLimiter, courseModuleController.getCourseModuleById)
   .delete(
     apiLimiter,
     isAuthenticated,
     checkUserRole(["admin", "superadmin"]),
-    courseModuleController.deleteCourseModule
+    courseModuleController.deleteCourseModule,
   );
 
 export default router;

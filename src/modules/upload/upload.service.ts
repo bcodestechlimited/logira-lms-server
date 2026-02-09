@@ -66,7 +66,7 @@ export class UploadService {
     const timestamp = Math.floor(Date.now() / 1000);
     const tags = "guest,unverified";
     const context = `source=public_api`;
-    const upload_preset = "guest_public_uploads";
+    const upload_preset = "logira";
 
     const paramsToSign = {
       timestamp,

@@ -5,40 +5,41 @@ import { ServiceResponse } from "../utils/service-response";
 
 export const handleServiceResponse = (
   serviceResponse: ServiceResponse<any>,
-  response: Response
+  response: Response,
 ) => {
   return response.status(serviceResponse.statusCode).send(serviceResponse);
 };
 
+type ValidationTarget = "body" | "params" | "query";
+
 const validateRequest =
-  (schema: ZodSchema) => (req: Request, res: Response, next: NextFunction) => {
+  (schema: ZodSchema, target: ValidationTarget = "body") =>
+  (req: Request, res: Response, next: NextFunction) => {
     try {
-      schema.parse(req.body);
+      schema.parse(req[target]);
       next();
     } catch (err) {
       if (err instanceof ZodError) {
         const errorMessage = `Validation failed: ${err.errors
-          .map((e) => {
-            // Include the field name and the error message
-            return `${e.path.join(".")}: ${e.message}`;
-          })
+          .map((e) => `${e.path.join(".")}: ${e.message}`)
           .join(", ")}`;
-        const statusCode = StatusCodes.BAD_REQUEST;
+
         const serviceResponse = ServiceResponse.failure(
           errorMessage,
           null,
-          statusCode
+          StatusCodes.BAD_REQUEST,
         );
-        return handleServiceResponse(serviceResponse, res);
-      } else {
-        const statusCode = StatusCodes.INTERNAL_SERVER_ERROR;
-        const serviceResponse = ServiceResponse.failure(
-          "An unexpected error occurred",
-          null,
-          statusCode
-        );
+
         return handleServiceResponse(serviceResponse, res);
       }
+
+      const serviceResponse = ServiceResponse.failure(
+        "An unexpected error occurred",
+        null,
+        StatusCodes.INTERNAL_SERVER_ERROR,
+      );
+
+      return handleServiceResponse(serviceResponse, res);
     }
   };
 

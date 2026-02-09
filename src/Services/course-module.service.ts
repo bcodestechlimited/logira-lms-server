@@ -1,14 +1,14 @@
 import createDOMPurify from "dompurify";
-import {UploadedFile} from "express-fileupload";
-import {StatusCodes} from "http-status-codes";
-import {JSDOM} from "jsdom";
-import {APP_CONFIG} from "../config/app.config";
-import {ProcessedSection} from "../interfaces/course-module.interface";
+import { UploadedFile } from "express-fileupload";
+import { StatusCodes } from "http-status-codes";
+import { JSDOM } from "jsdom";
+import { APP_CONFIG } from "../config/app.config";
+import { ProcessedSection } from "../interfaces/course-module.interface";
 import Course from "../models/Course";
-import {CourseModule} from "../models/course-module.model";
-import Progress, {CourseStatusEnum} from "../models/progress.model";
-import {uploadToCloudinary} from "../utils/cloudinary.utils";
-import {ServiceResponse} from "../utils/service-response";
+import { CourseModule } from "../models/course-module.model";
+import Progress, { CourseStatusEnum } from "../models/progress.model";
+import { moveToSafeTemp, uploadToCloudinary } from "../utils/cloudinary.utils";
+import { ServiceResponse } from "../utils/service-response";
 
 class CourseModuleService {
   /**
@@ -52,7 +52,7 @@ class CourseModuleService {
       const domPurify = createDOMPurify(window);
       const sanitizedContent = domPurify.sanitize(
         content,
-        APP_CONFIG.PURIFY_CONFIG
+        APP_CONFIG.PURIFY_CONFIG,
       );
       return sanitizedContent;
     } catch (error) {
@@ -73,16 +73,14 @@ class CourseModuleService {
   public async handleFileUpload(
     folderName: string,
     contentType: string,
-    matchingFile: any
+    matchingFile: any,
   ) {
     try {
-      const cloudinary_content = await uploadToCloudinary(
-        matchingFile.tempFilePath,
-        {
-          folderName: folderName,
-          resourceType: contentType === "video" ? "video" : "image",
-        }
-      );
+      const safePath = await moveToSafeTemp(matchingFile);
+      const cloudinary_content = await uploadToCloudinary(safePath, {
+        folderName: folderName,
+        resourceType: contentType === "video" ? "video" : "image",
+      });
 
       return cloudinary_content;
     } catch (error) {
@@ -92,7 +90,7 @@ class CourseModuleService {
 
   public async processSection(
     contentSections: any,
-    filesMap: {[field: string]: UploadedFile | UploadedFile[]}
+    filesMap: { [field: string]: UploadedFile | UploadedFile[] },
   ): Promise<ProcessedSection> {
     const processed = await Promise.all(
       contentSections.map(async (section) => {
@@ -110,7 +108,7 @@ class CourseModuleService {
               finalContent = await this.handleFileUpload(
                 "COURSE_MODULE",
                 section.type,
-                matchingFile
+                matchingFile,
               );
             }
             break;
@@ -120,7 +118,7 @@ class CourseModuleService {
               finalContent = await this.handleFileUpload(
                 "COURSE_MODULE",
                 "image",
-                matchingFile
+                matchingFile,
               );
             }
             break;
@@ -144,29 +142,29 @@ class CourseModuleService {
           type: section.type,
           content: finalContent,
         };
-      })
+      }),
     );
 
-    return {content: processed};
+    return { content: processed };
   }
 
   public async updateModule(
     moduleId: string,
     title: string | undefined,
     rawSections: any[],
-    filesMap: {[key: string]: UploadedFile | UploadedFile[]}
+    filesMap: { [key: string]: UploadedFile | UploadedFile[] },
   ): Promise<typeof CourseModule.prototype | null> {
     // 1) process sections
-    const {content} = await this.processSection(rawSections, filesMap);
+    const { content } = await this.processSection(rawSections, filesMap);
 
     // 2) replace and return updated doc
     const updated = await CourseModule.findByIdAndUpdate(
       moduleId,
       {
-        ...(title !== undefined && {title}),
+        ...(title !== undefined && { title }),
         contentSections: content,
       },
-      {new: true, runValidators: true}
+      { new: true, runValidators: true },
     ).exec();
 
     return updated;
@@ -174,19 +172,19 @@ class CourseModuleService {
 
   public async fetchModuleById(id: string) {
     try {
-      const module = await CourseModule.findById({_id: id});
+      const module = await CourseModule.findById({ _id: id });
       if (!module) {
         return ServiceResponse.failure(
           "Module not found",
           null,
-          StatusCodes.NOT_FOUND
+          StatusCodes.NOT_FOUND,
         );
       }
 
       // get the course that this module belongs to
       const course = await Course.findById(
-        {_id: module.courseId},
-        {course_modules: 1}
+        { _id: module.courseId },
+        { course_modules: 1 },
       ).populate("course_modules");
 
       let nextModuleId: string | null = null;
@@ -196,7 +194,7 @@ class CourseModuleService {
       if (course && course.course_modules && course.course_modules.length > 0) {
         // Find the index of the current module in the course modules array
         const moduleIndex = course.course_modules.findIndex(
-          (m) => m._id.toString() === id
+          (m) => m._id.toString() === id,
         );
 
         if (moduleIndex > 0) {
@@ -225,13 +223,13 @@ class CourseModuleService {
             assessment: course?.course_assessment,
           },
         },
-        StatusCodes.OK
+        StatusCodes.OK,
       );
     } catch (error) {
       return ServiceResponse.failure(
         "Internal Server Error",
         null,
-        StatusCodes.INTERNAL_SERVER_ERROR
+        StatusCodes.INTERNAL_SERVER_ERROR,
       );
     }
   }
@@ -242,7 +240,7 @@ class CourseModuleService {
       return ServiceResponse.failure(
         "Module not found",
         null,
-        StatusCodes.NOT_FOUND
+        StatusCodes.NOT_FOUND,
       );
     }
 
@@ -254,26 +252,26 @@ class CourseModuleService {
       return ServiceResponse.failure(
         "No progress found",
         null,
-        StatusCodes.NOT_FOUND
+        StatusCodes.NOT_FOUND,
       );
     }
 
     const moduleItem = progressDoc.modules.find(
-      (m) => m.module.toString() === moduleId
+      (m) => m.module.toString() === moduleId,
     );
     if (!moduleItem) {
       return ServiceResponse.failure(
         "Module not found in the progress document.",
         null,
-        StatusCodes.NOT_FOUND
+        StatusCodes.NOT_FOUND,
       );
     }
 
     if (moduleItem.completed) {
       return ServiceResponse.success(
         "Module already marked as completed.",
-        {data: progressDoc},
-        StatusCodes.OK
+        { data: progressDoc },
+        StatusCodes.OK,
       );
     }
 
@@ -282,7 +280,7 @@ class CourseModuleService {
 
     const totalModules = progressDoc.modules.length;
     const completedModules = progressDoc.modules.filter(
-      (m) => m.completed
+      (m) => m.completed,
     ).length;
     const progressPercentage = (completedModules / totalModules) * 100;
     progressDoc.progressPercentage = progressPercentage;
@@ -302,28 +300,27 @@ class CourseModuleService {
 
     return ServiceResponse.success(
       "Progress updated successfully.",
-      {data: progressDoc},
-      StatusCodes.OK
+      { data: progressDoc },
+      StatusCodes.OK,
     );
   }
 
   public async deleteModule(moduleId: string) {
-  
     const response = await CourseModule.findByIdAndDelete({
       _id: moduleId,
     });
-   
+
     if (!response) {
       return ServiceResponse.failure(
         "Course module not found",
         null,
-        StatusCodes.BAD_REQUEST
+        StatusCodes.BAD_REQUEST,
       );
     }
     return ServiceResponse.success(
       "Module deleted successfully.",
       response,
-      StatusCodes.ACCEPTED
+      StatusCodes.ACCEPTED,
     );
   }
 }

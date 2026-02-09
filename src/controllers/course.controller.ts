@@ -825,6 +825,17 @@ class CourseController {
     const serviceResponse = await courseService.softDelete(courseId);
     res.status(serviceResponse.statusCode).json(serviceResponse);
   }
+
+  public updateCourseImage = async (req: Request, res: Response) => {
+    const courseId = req.params.courseId;
+    const { image, publicId } = req.body;
+    const result = await courseService.updateCourseImage(
+      courseId,
+      image as string,
+      publicId,
+    );
+    res.status(200).json(result);
+  };
 }
 
 const courseController = new CourseController();

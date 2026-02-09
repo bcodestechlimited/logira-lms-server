@@ -1181,6 +1181,28 @@ class CourseService {
       StatusCodes.OK,
     );
   }
+
+  public updateCourseImage = async (
+    courseId: string,
+    image: string,
+    publicId: string,
+  ) => {
+    const updated = await Course.findOneAndUpdate(
+      { _id: courseId, isDeleted: false },
+      { $set: { image, publicId } },
+      { new: true },
+    );
+
+    if (!updated) {
+      return ServiceResponse.failure(
+        "Course not found",
+        null,
+        StatusCodes.NOT_FOUND,
+      );
+    }
+
+    return ApiSuccess.ok("Image updated successfully", updated);
+  };
 }
 
 const courseService = new CourseService();

@@ -39,11 +39,11 @@ export const nodeClient = new NodeCache({ stdTTL: 100, checkperiod: 120 });
 dotenv.config();
 
 const app: Application = express();
-app.use(express.json({ limit: "200mb" }));
+app.use(express.json({ limit: "400mb" }));
 const logger = pino({
   level: process.env.NODE_ENV === "production" ? "info" : "info",
 });
-app.use(pinoHttp({ logger }));
+// app.use(pinoHttp({ logger }));
 
 app.set("trust proxy", 1);
 app.use(compression());
@@ -53,30 +53,18 @@ app.use(
     credentials: true,
   }),
 );
-app.use(express.urlencoded({ extended: true, limit: "200mb" }));
+app.use(express.urlencoded({ extended: true, limit: "400mb" }));
 app.use(cookieParser());
 app.use(
   fileUpload({
     createParentPath: true,
-    limits: { fileSize: 200 * 1024 * 1024 },
+    limits: { fileSize: 400 * 1024 * 1024 },
     useTempFiles: true,
-    abortOnLimit: true,
     tempFileDir: "/tmp/",
   }),
 );
 
-morganBody(app, {
-  logResponseBody: false,
-  immediateReqLog: true,
-  logAllReqHeader: false,
-  timezone: "Africa/Lagos",
-  prettify: true,
-  logRequestBody: true,
-  logReqUserAgent: false,
-});
-app.use(morgan("dev"));
 app.use(helmet());
-
 app.use(express.static(path.join(__dirname, "Public")));
 
 export const hbs2 = create({

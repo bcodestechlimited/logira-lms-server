@@ -48,6 +48,7 @@ export interface CourseInterface extends Document {
   courseDuration?: string;
   amount?: number;
   image: string;
+  publicId: string;
   certificate?: string;
   image2?: Types.ObjectId;
   benefits: string[];

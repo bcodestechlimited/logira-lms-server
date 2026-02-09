@@ -1,15 +1,15 @@
-import mongoose, {InferSchemaType, Model, PaginateModel} from "mongoose";
+import mongoose, { InferSchemaType, Model, PaginateModel } from "mongoose";
 import autopopulate from "mongoose-autopopulate";
 import paginator from "mongoose-paginate-v2";
-import {ICoursePricing} from "./course-pricing.model";
-import {CourseInterface, SkillLevel} from "../interfaces/course.interface";
+import { ICoursePricing } from "./course-pricing.model";
+import { CourseInterface, SkillLevel } from "../interfaces/course.interface";
 
 export const DEFAULT_ENROLLMENT_DURATION = 90;
 
 export interface ICourseMethods {
   enrollUser(
     userId: mongoose.Types.ObjectId,
-    durationDays?: number
+    durationDays?: number,
   ): Promise<Date>;
   unenrollUser(userId: mongoose.Types.ObjectId): Promise<boolean>;
 }
@@ -17,13 +17,13 @@ export interface ICourseMethods {
 export interface ICourseModel extends Model<CourseDocument & ICourseMethods> {
   findWithActiveEnrollment(
     courseId: mongoose.Types.ObjectId,
-    userId: mongoose.Types.ObjectId
+    userId: mongoose.Types.ObjectId,
   ): Promise<CourseDocument | null>;
 }
 
 mongoose.plugin(paginator);
 mongoose.plugin(autopopulate);
-const {ObjectId} = mongoose.Schema;
+const { ObjectId } = mongoose.Schema;
 
 const CourseSchema = new mongoose.Schema<CourseInterface>(
   {
@@ -54,32 +54,33 @@ const CourseSchema = new mongoose.Schema<CourseInterface>(
       type: Number,
       default: DEFAULT_ENROLLMENT_DURATION,
     },
-    title: {type: String, required: true},
-    description: {type: String, required: true},
-    caption: {type: String},
+    title: { type: String, required: true },
+    description: { type: String, required: true },
+    caption: { type: String },
     skillLevel: {
       type: String,
       default: SkillLevel.BEGINNER,
       enum: Object.values(SkillLevel),
     },
-    duration: {type: String},
+    duration: { type: String },
     category: {
       type: String,
       default: "Technology",
       lowercase: true,
       required: true,
     },
-    courseDuration: {type: String},
-    amount: {type: Number},
-    image: {type: String, default: "https://placehold.co/600x400"},
+    courseDuration: { type: String },
+    amount: { type: Number },
+    image: { type: String, default: "https://placehold.co/600x400" },
+    publicId: { type: String },
     certificate: {
       type: String,
     },
     // image: { type: ObjectId, ref: "Content", autopopulate: true },
-    image2: {type: ObjectId, ref: "Content"},
+    image2: { type: ObjectId, ref: "Content" },
     benefits: [String],
-    language: {type: String, default: "english"},
-    softwares: {type: [String]},
+    language: { type: String, default: "english" },
+    softwares: { type: [String] },
     progress: [
       {
         type: ObjectId,
@@ -87,9 +88,9 @@ const CourseSchema = new mongoose.Schema<CourseInterface>(
         index: true,
       },
     ],
-    summary: {type: String, required: true},
+    summary: { type: String, required: true },
     // module: [{ type: ObjectId, ref: "Module", index: true }],
-    course_modules: [{type: ObjectId, ref: "CourseModule", index: true}],
+    course_modules: [{ type: ObjectId, ref: "CourseModule", index: true }],
     course_assessment: [
       {
         type: ObjectId,
@@ -110,25 +111,25 @@ const CourseSchema = new mongoose.Schema<CourseInterface>(
       autopopulate: false,
       index: true,
     },
-    coupon_codes: [{type: ObjectId, ref: "Coupon"}],
-    resource: [{type: ObjectId, ref: "Resource"}],
-    rating: [{type: ObjectId, ref: "Rating"}],
-    status: {type: String, default: "active"},
-    quiz: {type: ObjectId, ref: "Quiz"},
-    isPublished: {type: Boolean, default: false},
-    isDeleted: {type: Boolean, default: false},
+    coupon_codes: [{ type: ObjectId, ref: "Coupon" }],
+    resource: [{ type: ObjectId, ref: "Resource" }],
+    rating: [{ type: ObjectId, ref: "Rating" }],
+    status: { type: String, default: "active" },
+    quiz: { type: ObjectId, ref: "Quiz" },
+    isPublished: { type: Boolean, default: false },
+    isDeleted: { type: Boolean, default: false },
     organisation: {
       type: ObjectId,
       ref: "User",
       index: true,
     },
   },
-  {timestamps: true}
+  { timestamps: true },
 );
 
 CourseSchema.methods.enrollUser = async function (
   userId: mongoose.Types.ObjectId,
-  durationDays?: number
+  durationDays?: number,
 ) {
   const User = mongoose.model("User");
   const user = await User.findById(userId);
@@ -141,7 +142,7 @@ CourseSchema.methods.enrollUser = async function (
   expiresAt.setDate(expiresAt.getDate() + duration);
 
   const existingEnrollment = user.courseEnrollments?.find(
-    (enrollment) => enrollment.course.toString() === this._id.toString()
+    (enrollment) => enrollment.course.toString() === this._id.toString(),
   );
 
   if (existingEnrollment) {
@@ -168,7 +169,7 @@ CourseSchema.methods.enrollUser = async function (
 
   if (user.expiredCourses?.some((id) => id.equals(this._id))) {
     user.expiredCourses = user.expiredCourses.filter(
-      (id) => !id.equals(this._id)
+      (id) => !id.equals(this._id),
     );
   }
 
@@ -179,7 +180,7 @@ CourseSchema.methods.enrollUser = async function (
 
 // Method to manually unenroll a user
 CourseSchema.methods.unenrollUser = async function (
-  userId: mongoose.Types.ObjectId
+  userId: mongoose.Types.ObjectId,
 ) {
   const User = mongoose.model("User");
   const user = await User.findById(userId);
@@ -191,7 +192,7 @@ CourseSchema.methods.unenrollUser = async function (
   // Check if user is enrolled
   if (
     !user.courseEnrollments?.some((enrollment) =>
-      enrollment.course.equals(this._id)
+      enrollment.course.equals(this._id),
     )
   ) {
     return false;
@@ -199,7 +200,7 @@ CourseSchema.methods.unenrollUser = async function (
 
   // Remove from enrollments
   user.courseEnrollments = user.courseEnrollments.filter(
-    (enrollment) => !enrollment.course.equals(this._id)
+    (enrollment) => !enrollment.course.equals(this._id),
   );
 
   // Add to expired courses if not already there
@@ -231,7 +232,7 @@ CourseSchema.methods.unenrollUser = async function (
 // Static method to find a course where a user has an active enrollment
 CourseSchema.statics.findWithActiveEnrollment = async function (
   courseId: mongoose.Types.ObjectId,
-  userId: mongoose.Types.ObjectId
+  userId: mongoose.Types.ObjectId,
 ) {
   const User = mongoose.model("User");
   const user = await User.findById(userId);
@@ -243,7 +244,7 @@ CourseSchema.statics.findWithActiveEnrollment = async function (
   const now = new Date();
   const activeEnrollment = user.courseEnrollments.find(
     (enrollment) =>
-      enrollment.course.equals(courseId) && enrollment.expiresAt > now
+      enrollment.course.equals(courseId) && enrollment.expiresAt > now,
   );
 
   if (!activeEnrollment) {
