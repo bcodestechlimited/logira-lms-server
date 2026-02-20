@@ -84,7 +84,6 @@ class CourseModuleService {
 
       return cloudinary_content;
     } catch (error) {
-      console.log("error", error);
       throw new Error("Failed to upload file to cloudinary, handleFileUpload");
     }
   }
