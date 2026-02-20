@@ -19,9 +19,16 @@ export const moveToSafeTemp = async (file: any) => {
     `${crypto.randomUUID()}${ext}`,
   );
 
-  await fs.mkdir(path.dirname(safePath), { recursive: true });
-  await fs.rename(file.tempFilePath, safePath);
+  // await fs.mkdir(path.dirname(safePath), { recursive: true });
+  // await fs.rename(file.tempFilePath, safePath);
 
+  await fs.mkdir(path.dirname(safePath), { recursive: true });
+
+  await fs.copyFile(file.tempFilePath, safePath);
+
+  await fs.unlink(file.tempFilePath).catch((err) => {
+    console.error("Cleanup failed, but file was moved:", err);
+  });
   return safePath;
 };
 
