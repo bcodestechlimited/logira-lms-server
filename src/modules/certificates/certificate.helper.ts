@@ -13,5 +13,5 @@ export const generateCertificateNumber = async (issuedAt: Date) => {
   const padded = String(seq).padStart(6, "0");
 
   // Example: LMS-2026-000245
-  return `LMS-${year}-${padded}`;
+  return `ICS-L&D-LMS-${padded}`;
 };

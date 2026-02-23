@@ -194,7 +194,7 @@ export class CertificateService {
         courseTitle: courseTitle.toUpperCase(),
         issuedOn: issuedAt,
         certificateNumber,
-        signaturePngBytes: signatureBytes,
+        // signaturePngBytes: signatureBytes,
       },
       {
         templatePdfBytes: templateBytes,

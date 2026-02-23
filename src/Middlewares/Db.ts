@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import "dotenv/config";
 import mongoose from "mongoose";
-import User, {UserRole} from "../models/User.ts";
+import User, { UserRole } from "../models/User.ts";
 // mongoose.set("strictQuery", true);
 
 const connectDB = async () => {
@@ -34,7 +34,7 @@ export const seedAdmin = async () => {
     let savePassword = await bcrypt.hash(`pass123`, salt);
 
     if (findAdmin) {
-      console.log("Admin account exists: ", {findAdmin});
+      console.log("Admin account exists: ", { findAdmin });
       return;
     }
 
@@ -52,8 +52,8 @@ export const seedAdmin = async () => {
       password: savePassword,
     });
 
-    console.log({admin}, "Admin seeded successfully");
+    console.log({ admin }, "Admin seeded successfully");
   } catch (error) {
-    console.log({error}, "seeding");
+    console.log({ error }, "seeding");
   }
 };
