@@ -57,8 +57,6 @@ const certificateSchema = new Schema<CertificateModelInterface>(
   },
 );
 
-certificateSchema.index({ studentId: 1, courseId: 1 }, { unique: true });
-
 const CertificateModel = model<CertificateModelInterface>(
   "CertificateModel",
   certificateSchema,

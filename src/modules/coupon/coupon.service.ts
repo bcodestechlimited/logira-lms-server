@@ -738,8 +738,6 @@ export class CouponService {
       },
     ]);
 
-    console.log("coupon analyticsdata", data);
-
     return ApiSuccess.ok("Coupon analytics fetched successfully", { data });
   };
 }

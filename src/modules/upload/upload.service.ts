@@ -105,10 +105,11 @@ export class UploadService {
         {
           resource_type: "raw",
           folder: args.folder,
-          public_id: args.publicId,
+          // public_id: args.publicId,
           format: "pdf",
         },
         (err, result) => {
+          console.log("err", err);
           if (err || !result) return reject(err);
           resolve({ publicId: result.public_id, url: result.secure_url });
         },

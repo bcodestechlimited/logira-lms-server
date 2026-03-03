@@ -166,26 +166,12 @@ export class CertificateService {
       );
     }
 
-    const signature = await CertificateSignature.findOne({})
-      .sort({ createdAt: -1 })
-      .session(session || null)
-      .lean();
-
-    if (!signature) {
-      return ServiceResponse.failure(
-        "No certificate signature found",
-        null,
-        StatusCodes.NOT_FOUND,
-      );
-    }
-
     // 5) Generate unique certificate number
     const issuedAt = new Date();
     const certificateNumber = await generateCertificateNumber(issuedAt);
 
     // 6) Download template PDF bytes + signature PNG bytes
     const templateBytes = await downloadBytes(template.url);
-    const signatureBytes = await downloadBytes(signature.url);
 
     // 7) Render PDF (pdf-lib)
     const pdfBuffer = await renderCertificatePdf(
@@ -194,7 +180,6 @@ export class CertificateService {
         courseTitle: courseTitle.toUpperCase(),
         issuedOn: issuedAt,
         certificateNumber,
-        // signaturePngBytes: signatureBytes,
       },
       {
         templatePdfBytes: templateBytes,
@@ -220,8 +205,6 @@ export class CertificateService {
           issuedAt,
           pdfUrl: upload.url,
           cloudinaryPublicId: template.publicId,
-          signaturePublicId: (signature as any).publicId,
-          signatureUrl: signature.url,
         },
       ],
       session ? { session } : undefined,
