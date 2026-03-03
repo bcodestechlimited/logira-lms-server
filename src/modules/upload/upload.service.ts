@@ -2,6 +2,7 @@ import autoBind from "auto-bind";
 import {
   buildFolder,
   buildPublicId,
+  cleanPublicId,
   randomNonce,
   signCloudinaryParams,
 } from "./upload.helpers";
@@ -105,7 +106,7 @@ export class UploadService {
         {
           resource_type: "raw",
           folder: args.folder,
-          // public_id: args.publicId,
+          public_id: cleanPublicId(args.publicId),
           format: "pdf",
         },
         (err, result) => {

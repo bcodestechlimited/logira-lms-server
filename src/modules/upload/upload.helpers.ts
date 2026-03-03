@@ -37,3 +37,13 @@ export const signCloudinaryParams = (params: Signable, apiSecret: string) => {
     .update(toSign + apiSecret)
     .digest("hex");
 };
+
+export function cleanPublicId(input: string) {
+  return input
+    .trim()
+    .replace(/\.pdf$/i, "")
+    .replace(/\\/g, "/")
+    .replace(/[^a-zA-Z0-9/_-]/g, "-")
+    .replace(/\/+/g, "/")
+    .replace(/^\/|\/$/g, "");
+}
