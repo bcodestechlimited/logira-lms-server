@@ -4,8 +4,8 @@ import {
   isAuthenticated,
   isLocalAuthenticated,
 } from "../../Middlewares/Auth";
-import { couponController, CouponController } from "./coupon.controller";
 import { apiLimiter } from "../../Middlewares/RateLimiter";
+import { couponController } from "./coupon.controller";
 
 const couponRouter = Router();
 
@@ -27,7 +27,12 @@ couponRouter
 
 couponRouter
   .route("/issue-coupon")
-  .post(isLocalAuthenticated, couponController.sendCouponToUsersForACourse);
+  .post(
+    isLocalAuthenticated,
+    apiLimiter,
+    checkUserRole(["admin", "superadmin"]),
+    couponController.sendCouponToUsersForACourse,
+  );
 
 couponRouter
   .route("/coupon-checkout")
@@ -36,5 +41,13 @@ couponRouter
 couponRouter
   .route("/course-checkout")
   .post(apiLimiter, isAuthenticated, couponController.courseCheckout);
+
+couponRouter
+  .route("/:id/extend-expiration")
+  .patch(
+    isLocalAuthenticated,
+    checkUserRole(["admin", "superadmin"]),
+    couponController.updateCouponExpiration,
+  );
 
 export default couponRouter;

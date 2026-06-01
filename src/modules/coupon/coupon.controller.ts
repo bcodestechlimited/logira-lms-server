@@ -8,17 +8,12 @@ import {
 } from "../payment/payment-v2.interface";
 import { VerifyCouponCodeDTO } from "./coupon.interface";
 import { SendCouponToUsersDTO } from "./coupon.schema";
-import { CouponService } from "./coupon.service";
+import { couponService, CouponService } from "./coupon.service";
 
 export class CouponController {
-  constructor(private couponService: CouponService) {
-    autoBind(this);
-  }
+  constructor(private couponService: CouponService) {}
 
-  public sendCouponToUsersForACourse = async (
-    req: ExtendedRequest,
-    res: Response,
-  ) => {
+  public sendCouponToUsersForACourse = async (req: ExtendedRequest, res: Response) => {
     const user = req.user;
     const file = (req.files as any).file;
     const dto = req.body as SendCouponToUsersDTO;
@@ -80,6 +75,21 @@ export class CouponController {
     const result = await this.couponService.getCouponAnalytics();
     res.status(result.status_code).json(result);
   };
+
+  public updateCouponExpiration = async (req: ExtendedRequest, res: Response) => {
+    const { id } = req.params;
+    const { expirationDate } = req.body;
+
+    if (!expirationDate) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: "Expiration date is required",
+      });
+    }
+
+    const result = await this.couponService.updateCouponExpiration(id, expirationDate);
+    res.status(result.status_code).json(result);
+  };
 }
 
-export const couponController = new CouponController(new CouponService());
+export const couponController = new CouponController(couponService);

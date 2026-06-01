@@ -14,9 +14,6 @@ const baseTemplateSource = fs.readFileSync(
 );
 Handlebars.registerPartial("base_template", baseTemplateSource);
 
-/**
- * Service for handling email-related operations
- */
 class EmailService {
   renderTemplate(templateName: string, variables: {}) {
     const data = {
@@ -25,7 +22,7 @@ class EmailService {
       companyName: APP_CONFIG.COMPANY_NAME,
       supportUrl: APP_CONFIG.SUPPORT_EMAIL || "support@logiralms.com",
       socialIcons: MAIL_SERVICE_SOCIAL_ICONS,
-      companyWebsite: "https://",
+      companyWebsite: "https://logiralms.com",
       preferencesUrl: "",
       unsubscribe_url: "",
     };
@@ -49,9 +46,7 @@ class EmailService {
    * @returns {Promise<{ message: string, status: string }>} - A promise resolving to an object containing the message and status.
    * @throws {Error} - Throws an error if the email fails to send.
    */
-  async sendEmailTemplate(
-    emailData: EmailDataInterface & { attachments?: any[] },
-  ) {
+  async sendEmailTemplate(emailData: EmailDataInterface & { attachments?: any[] }) {
     try {
       const html = this.renderTemplate(emailData.template, emailData.variables);
 

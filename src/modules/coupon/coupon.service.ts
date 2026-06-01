@@ -32,7 +32,7 @@ export class CouponService {
     autoBind(this);
   }
 
-  public async sendCouponToUsersForACourse({
+  public sendCouponToUsersForACourse = async ({
     file,
     user,
     dto,
@@ -40,7 +40,7 @@ export class CouponService {
     file: UploadedFile;
     user: any;
     dto: SendCouponToUsersDTO;
-  }) {
+  }) => {
     if (!file) {
       throw ApiError.badRequest("No file uploaded");
     }
@@ -66,9 +66,7 @@ export class CouponService {
     const issued: Array<{ email: string; couponCode: string }> = [];
     const failed: Array<{ email: string; reason: string }> = [];
 
-    const COUPON_PREFIX = String(dto.discountType)
-      .substring(0, 3)
-      .toUpperCase();
+    const COUPON_PREFIX = String(dto.discountType).substring(0, 3).toUpperCase();
 
     for (const email of normalizedEmails) {
       const foundUser = userByEmail.get(email);
@@ -145,7 +143,7 @@ export class CouponService {
       issuedCount: issued.length,
       failed,
     });
-  }
+  };
 
   private generateCouponCode = () => {
     const raw = uuidv4().replace(/-/g, "");
@@ -170,9 +168,7 @@ export class CouponService {
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       const randomCode = this.generateCouponCode();
       const codeWithChecksum = this.addChecksum(randomCode);
-      const finalCode = prefix
-        ? `${prefix}-${codeWithChecksum}`
-        : codeWithChecksum;
+      const finalCode = prefix ? `${prefix}-${codeWithChecksum}` : codeWithChecksum;
 
       const existingCoupon = await CourseCoupon.findOne({
         couponCode: finalCode,
@@ -231,10 +227,7 @@ export class CouponService {
     return { success: true, message: "Coupon is valid" };
   };
 
-  private calculateDiscountPrice = (
-    coursePrice: number,
-    couponPercentage: number,
-  ) => {
+  private calculateDiscountPrice = (coursePrice: number, couponPercentage: number) => {
     const discountAmount = (coursePrice * couponPercentage) / 100;
     const finalPrice = coursePrice - discountAmount;
 
@@ -249,9 +242,7 @@ export class CouponService {
     },
     user: { _id: unknown; email?: string },
   ) => {
-    const couponUserId = coupon.issuedToUserId
-      ? String(coupon.issuedToUserId)
-      : "";
+    const couponUserId = coupon.issuedToUserId ? String(coupon.issuedToUserId) : "";
     const userId = user?._id ? String(user._id) : "";
 
     if (couponUserId && userId && couponUserId === userId) return true;
@@ -290,11 +281,7 @@ export class CouponService {
     );
 
     if (!coupon) {
-      return ServiceResponse.failure(
-        "No coupon found",
-        null,
-        StatusCodes.BAD_REQUEST,
-      );
+      return ServiceResponse.failure("No coupon found", null, StatusCodes.BAD_REQUEST);
     }
 
     const validity = this.isCouponValid({
@@ -306,11 +293,7 @@ export class CouponService {
     });
 
     if (!validity.success) {
-      return ServiceResponse.failure(
-        validity.message,
-        null,
-        StatusCodes.BAD_REQUEST,
-      );
+      return ServiceResponse.failure(validity.message, null, StatusCodes.BAD_REQUEST);
     }
 
     if (String(coupon.courseId) !== String(dto.courseId)) {
@@ -334,11 +317,7 @@ export class CouponService {
     });
 
     if (!course) {
-      return ServiceResponse.failure(
-        "Course not found",
-        null,
-        StatusCodes.BAD_REQUEST,
-      );
+      return ServiceResponse.failure("Course not found", null, StatusCodes.BAD_REQUEST);
     }
 
     const coursePriceRaw = course.course_price as unknown;
@@ -358,10 +337,7 @@ export class CouponService {
       );
     }
 
-    const discounted = this.calculateDiscountPrice(
-      coursePrice,
-      coupon.percentage,
-    );
+    const discounted = this.calculateDiscountPrice(coursePrice, coupon.percentage);
 
     return ServiceResponse.success(
       "Coupon is valid",
@@ -403,26 +379,15 @@ export class CouponService {
     return { course, coursePrice };
   };
 
-  public enrollUserWithPerpetualAccess = async (
-    userId: string,
-    courseId: string,
-  ) => {
+  public enrollUserWithPerpetualAccess = async (userId: string, courseId: string) => {
     const user = await User.findById(userId);
     if (!user) {
-      return ServiceResponse.failure(
-        "User not found",
-        null,
-        StatusCodes.NOT_FOUND,
-      );
+      return ServiceResponse.failure("User not found", null, StatusCodes.NOT_FOUND);
     }
 
     const course = await Course.findById(courseId);
     if (!course) {
-      return ServiceResponse.failure(
-        "Course not found",
-        null,
-        StatusCodes.NOT_FOUND,
-      );
+      return ServiceResponse.failure("Course not found", null, StatusCodes.NOT_FOUND);
     }
 
     const existingEnrollment = user.courseEnrollments?.find(
@@ -470,11 +435,7 @@ export class CouponService {
       const { course, coursePrice } = await this.getCoursePrice(courseId);
 
       if (!course) {
-        return ServiceResponse.failure(
-          "No course found",
-          null,
-          StatusCodes.NOT_FOUND,
-        );
+        return ServiceResponse.failure("No course found", null, StatusCodes.NOT_FOUND);
       }
 
       if (coursePrice == null) {
@@ -525,11 +486,7 @@ export class CouponService {
         });
 
         if (!validity.success) {
-          return ServiceResponse.failure(
-            validity.message,
-            null,
-            StatusCodes.BAD_REQUEST,
-          );
+          return ServiceResponse.failure(validity.message, null, StatusCodes.BAD_REQUEST);
         }
 
         const belongsToUser = this.couponBelongsToUser(coupon, {
@@ -545,10 +502,7 @@ export class CouponService {
           );
         }
 
-        const priceDetails = this.calculateDiscountPrice(
-          coursePrice,
-          coupon.percentage,
-        );
+        const priceDetails = this.calculateDiscountPrice(coursePrice, coupon.percentage);
 
         finalPrice = priceDetails.price;
         discount = priceDetails.discountAmount;
@@ -644,17 +598,11 @@ export class CouponService {
 
     const filterQuery: Record<string, unknown> = { isDeleted: false };
 
-    if (
-      query.status &&
-      Object.values(CouponStatusEnum).includes(query.status)
-    ) {
+    if (query.status && Object.values(CouponStatusEnum).includes(query.status)) {
       filterQuery.status = query.status;
     }
 
-    if (
-      query.discountType &&
-      Object.values(DiscountType).includes(query.discountType)
-    ) {
+    if (query.discountType && Object.values(DiscountType).includes(query.discountType)) {
       filterQuery.discountType = query.discountType;
     }
 
@@ -675,10 +623,8 @@ export class CouponService {
 
     if (start || end) {
       filterQuery.expirationDate = {};
-      if (start)
-        (filterQuery.expirationDate as Record<string, unknown>).$gte = start;
-      if (end)
-        (filterQuery.expirationDate as Record<string, unknown>).$lte = end;
+      if (start) (filterQuery.expirationDate as Record<string, unknown>).$gte = start;
+      if (end) (filterQuery.expirationDate as Record<string, unknown>).$lte = end;
     }
 
     if (search) {
@@ -713,10 +659,7 @@ export class CouponService {
       {
         $facet: {
           allCoupons: [{ $count: "count" }],
-          usedCoupons: [
-            { $match: { usedAt: { $ne: null } } },
-            { $count: "count" },
-          ],
+          usedCoupons: [{ $match: { usedAt: { $ne: null } } }, { $count: "count" }],
           activeCoupons: [
             { $match: { status: CouponStatusEnum.ACTIVE, usedAt: null } },
             { $count: "count" },
@@ -740,4 +683,43 @@ export class CouponService {
 
     return ApiSuccess.ok("Coupon analytics fetched successfully", { data });
   };
+
+  public updateCouponExpiration = async (
+    couponId: string,
+    newExpirationDate: string | Date,
+  ) => {
+    if (!mongoose.Types.ObjectId.isValid(couponId)) {
+      throw ApiError.badRequest("Invalid coupon ID");
+    }
+
+    const expirationDate = new Date(newExpirationDate);
+    if (isNaN(expirationDate.getTime())) {
+      throw ApiError.badRequest("Invalid expiration date format");
+    }
+
+    const coupon = await CourseCoupon.findOneAndUpdate(
+      { _id: couponId, isDeleted: false },
+      { $set: { expirationDate } },
+      { new: true },
+    ).select("-users");
+
+    if (!coupon) {
+      throw ApiError.notFound("Coupon not found or already deleted");
+    }
+
+    // Reactivating the coupon if it was INACTIVE but hasn't reached max usage yet
+    // (Optional: You can remove this block if you don't want expired/inactive coupons to reactivate)
+    if (
+      coupon.status === CouponStatusEnum.INACTIVE &&
+      coupon.currentUses < coupon.maximumUsage &&
+      coupon.expirationDate.getTime() > Date.now()
+    ) {
+      coupon.status = CouponStatusEnum.ACTIVE;
+      await coupon.save();
+    }
+
+    return ApiSuccess.ok("Coupon expiration date extended successfully", { coupon });
+  };
 }
+
+export const couponService = new CouponService();
