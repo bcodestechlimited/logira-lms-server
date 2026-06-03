@@ -23,11 +23,7 @@ class AuthService {
         .lean();
 
       if (!user) {
-        return ServiceResponse.failure(
-          "User not found",
-          null,
-          StatusCodes.NOT_FOUND,
-        );
+        return ServiceResponse.failure("User not found", null, StatusCodes.NOT_FOUND);
       }
       const isPasswordValid = await bcrypt.compare(password, user.password);
 
@@ -38,6 +34,10 @@ class AuthService {
           StatusCodes.BAD_REQUEST,
         );
       }
+
+      await User.findByIdAndUpdate(user._id, {
+        $set: { lastVisited: new Date() },
+      });
 
       const payload = {
         userId: user._id.toString(),
@@ -64,11 +64,7 @@ class AuthService {
       };
       return ServiceResponse.success("Success", responseObject, StatusCodes.OK);
     } catch (error) {
-      return ServiceResponse.failure(
-        "Error",
-        null,
-        StatusCodes.INTERNAL_SERVER_ERROR,
-      );
+      return ServiceResponse.failure("Error", null, StatusCodes.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -161,11 +157,7 @@ class AuthService {
       }
       const user = await User.findById({ _id: decoded.id });
       if (!user) {
-        return ServiceResponse.failure(
-          "User not found",
-          null,
-          StatusCodes.NOT_FOUND,
-        );
+        return ServiceResponse.failure("User not found", null, StatusCodes.NOT_FOUND);
       }
       user.isEmailVerified = true;
       await user.save();
@@ -190,18 +182,11 @@ class AuthService {
     try {
       const user = await User.findOne({ email }).populate("passwordVersion");
       if (!user) {
-        return ServiceResponse.failure(
-          "User not found",
-          null,
-          StatusCodes.NOT_FOUND,
-        );
+        return ServiceResponse.failure("User not found", null, StatusCodes.NOT_FOUND);
       }
 
       const resetToken = crypto.randomBytes(32).toString("hex");
-      const hashedToken = crypto
-        .createHash("sha256")
-        .update(resetToken)
-        .digest("hex");
+      const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
       user.passwordResetToken = hashedToken;
       user.passwordResetTokenExpires = new Date(Date.now() + 60 * 60 * 1000);
       const token = resetToken;
@@ -244,10 +229,7 @@ class AuthService {
 
   public async resetPassword(token: string, password: string) {
     try {
-      const hashedToken = crypto
-        .createHash("sha256")
-        .update(token)
-        .digest("hex");
+      const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
       const user = await User.findOne({
         passwordResetToken: hashedToken,
@@ -322,11 +304,7 @@ class AuthService {
     try {
       const checkUser = await User.findOne({ email });
       if (checkUser) {
-        return ServiceResponse.failure(
-          "User exists",
-          null,
-          StatusCodes.BAD_REQUEST,
-        );
+        return ServiceResponse.failure("User exists", null, StatusCodes.BAD_REQUEST);
       }
     } catch (error) {
       return ServiceResponse.failure(
@@ -337,21 +315,11 @@ class AuthService {
     }
   }
 
-  public async updatePassword(
-    userId: string,
-    password: string,
-    newPassword: string,
-  ) {
+  public async updatePassword(userId: string, password: string, newPassword: string) {
     try {
-      const user = await User.findById(userId).select(
-        "+password +passwordVersion",
-      );
+      const user = await User.findById(userId).select("+password +passwordVersion");
       if (!user) {
-        return ServiceResponse.failure(
-          "User not found",
-          null,
-          StatusCodes.NOT_FOUND,
-        );
+        return ServiceResponse.failure("User not found", null, StatusCodes.NOT_FOUND);
       }
 
       const isMatch = await bcrypt.compare(password, user.password);

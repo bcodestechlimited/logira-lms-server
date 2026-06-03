@@ -1,49 +1,70 @@
 import express from "express";
-import {analyticsController} from "../controllers/analytics.controller";
-import {checkUserRole, isLocalAuthenticated} from "../Middlewares/Auth";
+import { analyticsController } from "../controllers/analytics.controller";
+import { checkUserRole, isLocalAuthenticated } from "../Middlewares/Auth";
 
-const router = express.Router();
+const analyticsRouter = express.Router();
 
-router.get(
+analyticsRouter.get(
   "/courses/course-analytics",
   isLocalAuthenticated,
   checkUserRole(["admin", "superadmin"]),
-  analyticsController.getCoursesCreatedOverTime
+  analyticsController.getCoursesCreatedOverTime,
 );
 
-router.get(
+analyticsRouter.get(
   "/courses/created-over-time",
   isLocalAuthenticated,
   checkUserRole(["admin", "superadmin"]),
-  analyticsController.getCoursesCreatedOverTime
+  analyticsController.getCoursesCreatedOverTime,
 );
 
-router.get(
+analyticsRouter.get(
   "/courses/by-category",
   isLocalAuthenticated,
   checkUserRole(["admin", "superadmin"]),
-  analyticsController.getCoursesByCategory
+  analyticsController.getCoursesByCategory,
 );
 
-router.get(
+analyticsRouter.get(
   "/courses/skill-distribution",
   isLocalAuthenticated,
   checkUserRole(["admin", "superadmin"]),
-  analyticsController.getSkillLevelDistribution
+  analyticsController.getSkillLevelDistribution,
 );
 
-router.get(
+analyticsRouter.get(
   "/courses/enrollments",
   isLocalAuthenticated,
   checkUserRole(["admin", "superadmin"]),
-  analyticsController.getEnrollmentCounts
+  analyticsController.getEnrollmentCounts,
 );
 
-router.get(
+analyticsRouter.get(
   "/courses/top-enrolled",
   isLocalAuthenticated,
   checkUserRole(["admin", "superadmin"]),
-  analyticsController.getTopEnrolledCourses
+  analyticsController.getTopEnrolledCourses,
 );
 
-export default router;
+analyticsRouter.get(
+  "/users/growth-over-time",
+  isLocalAuthenticated,
+  checkUserRole(["admin", "superadmin"]),
+  analyticsController.getUserGrowthOverTime,
+);
+
+analyticsRouter.get(
+  "/users/engagement",
+  isLocalAuthenticated,
+  checkUserRole(["admin", "superadmin"]),
+  analyticsController.getUserEngagementMetrics,
+);
+
+analyticsRouter.get(
+  "/users/learning-stats",
+  isLocalAuthenticated,
+  checkUserRole(["admin", "superadmin"]),
+  analyticsController.getUserEnrollmentStats,
+);
+
+export default analyticsRouter;

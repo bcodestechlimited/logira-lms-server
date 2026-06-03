@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import mongoose, {Document, InferSchemaType, Model, Types} from "mongoose";
+import mongoose, { Document, InferSchemaType, Model, Types } from "mongoose";
 import autopopulate from "mongoose-autopopulate";
 import paginator from "mongoose-paginate-v2";
 import slug from "mongoose-slug-updater";
@@ -7,7 +7,7 @@ import slug from "mongoose-slug-updater";
 mongoose.plugin(paginator);
 mongoose.plugin(autopopulate);
 mongoose.plugin(slug);
-const {ObjectId} = mongoose.Schema;
+const { ObjectId } = mongoose.Schema;
 
 export const userStatus = ["pending", "activated", "suspended"] as const;
 
@@ -39,7 +39,7 @@ export type ENABLEDISABLE = (typeof enableDisable)[number];
 export interface ICourseEnrollment {
   course: Types.ObjectId;
   expiresAt: Date;
-  isAssigned: boolean
+  isAssigned: boolean;
 }
 
 export interface IUserBase extends Document {
@@ -103,10 +103,7 @@ export interface IUserMethods {
 // export interface IUser extends IUserBase, IUserMethods, Document {}
 
 export interface IUserModel extends Model<IUserBase> {
-  findByEmailInvitationToken(
-    email: string,
-    token: string
-  ): Promise<IUserBase | null>;
+  findByEmailInvitationToken(email: string, token: string): Promise<IUserBase | null>;
   verifyToken(plainToken: string, hashedToken: string): boolean;
   checkAllUsersForExpiredCourses(): Promise<void>;
 }
@@ -186,7 +183,7 @@ const UserSchema = new mongoose.Schema<IUserBase>(
       type: String,
       default: "Extra",
     },
-    userType: {type: ObjectId, ref: "UserType", autopopulate: true},
+    userType: { type: ObjectId, ref: "UserType", autopopulate: true },
     role: {
       type: String,
       enum: UserRole,
@@ -207,7 +204,7 @@ const UserSchema = new mongoose.Schema<IUserBase>(
         index: true,
       },
     ],
-    isAdmin: {type: Boolean, default: false, index: true},
+    isAdmin: { type: Boolean, default: false, index: true },
     gender: {
       type: String,
     },
@@ -242,10 +239,10 @@ const UserSchema = new mongoose.Schema<IUserBase>(
     is2FAType: {
       type: String,
     },
-    bio: {type: String, trim: true},
-    case: {type: String, trim: true},
-    regMode: {type: String, trim: true},
-    department: {type: String},
+    bio: { type: String, trim: true },
+    case: { type: String, trim: true },
+    regMode: { type: String, trim: true },
+    department: { type: String },
     courseEnrollments: [
       {
         course: {
@@ -290,22 +287,22 @@ const UserSchema = new mongoose.Schema<IUserBase>(
       },
       index: true,
     },
-    passwordVersion: {type: Number, default: 1, select: false},
-    passwordResetToken: {type: String, select: false},
-    passwordResetTokenExpires: {type: Date, select: false},
-    emailInvitationToken: {type: String, select: false},
+    passwordVersion: { type: Number, default: 1, select: false },
+    passwordResetToken: { type: String, select: false },
+    passwordResetTokenExpires: { type: Date, select: false },
+    emailInvitationToken: { type: String, select: false },
     emailInvitationStatus: {
       type: String,
       select: false,
       enum: Object.values(EmailInvitationEnum),
     },
-    staffEmailInvitationSentAt: {type: Date, select: false},
+    staffEmailInvitationSentAt: { type: Date, select: false },
     isActive: {
       type: Boolean,
       default: true,
     },
   },
-  {timestamps: true}
+  { timestamps: true },
 );
 
 UserSchema.methods.generatePasswordResetToken = function () {
@@ -337,8 +334,7 @@ UserSchema.methods.checkAndExpireCourses = async function () {
     (enrollment: ICourseEnrollment) => {
       if (enrollment.expiresAt <= now) {
         const isAlreadyExpired = this.expiredCourses.some(
-          (expiredItem) =>
-            expiredItem.course.toString() === enrollment.course.toString()
+          (expiredItem) => expiredItem.course.toString() === enrollment.course.toString(),
         );
 
         if (!isAlreadyExpired) {
@@ -352,7 +348,7 @@ UserSchema.methods.checkAndExpireCourses = async function () {
         return false;
       }
       return true;
-    }
+    },
   );
 
   this.courseEnrollments = activeEnrollments;
@@ -361,8 +357,8 @@ UserSchema.methods.checkAndExpireCourses = async function () {
 
     const Course = mongoose.model("Course");
     await Course.updateMany(
-      {_id: {$in: expiredCourseIds}},
-      {$pull: {participants: this._id}}
+      { _id: { $in: expiredCourseIds } },
+      { $pull: { participants: this._id } },
     );
   }
 
@@ -379,7 +375,7 @@ UserSchema.statics.checkAllUsersForExpiredCourses = async function () {
 
 UserSchema.statics.findByEmailInvitationToken = async function (
   email: string,
-  token: string
+  token: string,
 ) {
   const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
@@ -390,16 +386,13 @@ UserSchema.statics.findByEmailInvitationToken = async function (
     email,
     emailInvitationToken: hashedToken,
     emailInvitationStatus: EmailInvitationEnum.PENDING,
-    staffEmailInvitationSentAt: {$gt: sevenDaysAgo},
+    staffEmailInvitationSentAt: { $gt: sevenDaysAgo },
   });
 
   return user;
 };
 
-UserSchema.statics.verifyToken = function (
-  plainToken: string,
-  hashedToken: string
-) {
+UserSchema.statics.verifyToken = function (plainToken: string, hashedToken: string) {
   const rehashed = crypto.createHash("sha256").update(plainToken).digest("hex");
   return rehashed === hashedToken;
 };

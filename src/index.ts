@@ -8,15 +8,13 @@ import fileUpload from "express-fileupload";
 import { create } from "express-handlebars";
 import helmet from "helmet";
 import { createServer } from "http";
-import morgan from "morgan";
-import morganBody from "morgan-body";
 import NodeCache from "node-cache";
 import path from "path";
 import pino from "pino";
-import pinoHttp from "pino-http";
 import { handleAllowedOrigins } from "./Middlewares/allowed-origins.ts";
 import connectDB from "./Middlewares/Db.ts";
 import errorHandler from "./Middlewares/error-handler.ts";
+import certificateRouter from "./modules/certificates/certificate.routes.ts";
 import couponRouter from "./modules/coupon/coupon.routes.ts";
 import uploadRouter from "./modules/upload/upload.routes.ts";
 import AdminRouter from "./routes/admin.routes.ts";
@@ -32,7 +30,6 @@ import progressRouter from "./routes/progress.routes.ts";
 import templateRouter from "./routes/template.routes.ts";
 import { startAgenda } from "./Services/scheduler.service.ts";
 import "./utils/tracing.ts";
-import certificateRouter from "./modules/certificates/certificate.routes.ts";
 
 export const nodeClient = new NodeCache({ stdTTL: 100, checkperiod: 120 });
 
@@ -46,6 +43,7 @@ const logger = pino({
 // app.use(pinoHttp({ logger }));
 
 app.set("trust proxy", 1);
+app.disable("x-powered-by");
 app.use(compression());
 app.use(
   cors({

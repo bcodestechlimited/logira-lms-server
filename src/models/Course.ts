@@ -7,10 +7,7 @@ import { CourseInterface, SkillLevel } from "../interfaces/course.interface";
 export const DEFAULT_ENROLLMENT_DURATION = 90;
 
 export interface ICourseMethods {
-  enrollUser(
-    userId: mongoose.Types.ObjectId,
-    durationDays?: number,
-  ): Promise<Date>;
+  enrollUser(userId: mongoose.Types.ObjectId, durationDays?: number): Promise<Date>;
   unenrollUser(userId: mongoose.Types.ObjectId): Promise<boolean>;
 }
 
@@ -168,9 +165,7 @@ CourseSchema.methods.enrollUser = async function (
   }
 
   if (user.expiredCourses?.some((id) => id.equals(this._id))) {
-    user.expiredCourses = user.expiredCourses.filter(
-      (id) => !id.equals(this._id),
-    );
+    user.expiredCourses = user.expiredCourses.filter((id) => !id.equals(this._id));
   }
 
   await user.save();
@@ -179,9 +174,7 @@ CourseSchema.methods.enrollUser = async function (
 };
 
 // Method to manually unenroll a user
-CourseSchema.methods.unenrollUser = async function (
-  userId: mongoose.Types.ObjectId,
-) {
+CourseSchema.methods.unenrollUser = async function (userId: mongoose.Types.ObjectId) {
   const User = mongoose.model("User");
   const user = await User.findById(userId);
 
@@ -190,11 +183,7 @@ CourseSchema.methods.unenrollUser = async function (
   }
 
   // Check if user is enrolled
-  if (
-    !user.courseEnrollments?.some((enrollment) =>
-      enrollment.course.equals(this._id),
-    )
-  ) {
+  if (!user.courseEnrollments?.some((enrollment) => enrollment.course.equals(this._id))) {
     return false;
   }
 
@@ -243,8 +232,7 @@ CourseSchema.statics.findWithActiveEnrollment = async function (
 
   const now = new Date();
   const activeEnrollment = user.courseEnrollments.find(
-    (enrollment) =>
-      enrollment.course.equals(courseId) && enrollment.expiresAt > now,
+    (enrollment) => enrollment.course.equals(courseId) && enrollment.expiresAt > now,
   );
 
   if (!activeEnrollment) {
