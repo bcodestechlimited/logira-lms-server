@@ -4,7 +4,7 @@ import { ServiceResponse } from "../utils/service-response";
 import { StatusCodes } from "http-status-codes";
 
 class AnalyticsService {
-  public async fetchCourseAnalytics(id: string) {
+  public fetchCourseAnalytics = async (id: string) => {
     const statsArr = await User.aggregate([
       { $match: { _id: new mongoose.Types.ObjectId(id) } },
       {
@@ -56,9 +56,9 @@ class AnalyticsService {
     }
 
     return { success: true, data: statsArr[0] };
-  }
+  };
 
-  public async fetchUserGrowthOverTime() {
+  public fetchUserGrowthOverTime = async () => {
     try {
       const data = await User.aggregate([
         {
@@ -94,10 +94,10 @@ class AnalyticsService {
         StatusCodes.INTERNAL_SERVER_ERROR,
       );
     }
-  }
+  };
 
   // 2. User Engagement (Daily and Monthly Active Users)
-  public async fetchUserEngagementMetrics() {
+  public fetchUserEngagementMetrics = async () => {
     try {
       const now = new Date();
       const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
@@ -138,10 +138,10 @@ class AnalyticsService {
         StatusCodes.INTERNAL_SERVER_ERROR,
       );
     }
-  }
+  };
 
   // 3. User Course/Learning Statistics
-  public async fetchUserEnrollmentStats() {
+  public fetchUserEnrollmentStats = async () => {
     try {
       const data = await User.aggregate([
         {
@@ -197,7 +197,110 @@ class AnalyticsService {
         StatusCodes.INTERNAL_SERVER_ERROR,
       );
     }
-  }
+  };
+
+  public fetchGlobalLearningOutcomes = async () => {
+    try {
+      const data = await User.aggregate([
+        {
+          $lookup: {
+            from: "progresses",
+            localField: "progress",
+            foreignField: "_id",
+            as: "progressData",
+          },
+        },
+        {
+          $project: {
+            completedCount: {
+              $size: {
+                $filter: {
+                  input: { $ifNull: ["$progressData", []] },
+                  as: "p",
+                  cond: { $eq: ["$$p.status", "completed"] },
+                },
+              },
+            },
+            inProgressCount: {
+              $size: {
+                $filter: {
+                  input: { $ifNull: ["$progressData", []] },
+                  as: "p",
+                  cond: { $eq: ["$$p.status", "in-progress"] },
+                },
+              },
+            },
+            certCount: {
+              $size: {
+                $filter: {
+                  input: { $ifNull: ["$progressData", []] },
+                  as: "p",
+                  cond: { $eq: ["$$p.certificateIssued", true] },
+                },
+              },
+            },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalCompleted: { $sum: "$completedCount" },
+            totalInProgress: { $sum: "$inProgressCount" },
+            totalCertificates: { $sum: "$certCount" },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            totalCompleted: 1,
+            totalInProgress: 1,
+            totalCertificates: 1,
+            totalTrackedEnrollments: { $add: ["$totalCompleted", "$totalInProgress"] },
+            completionRate: {
+              $cond: [
+                { $gt: [{ $add: ["$totalCompleted", "$totalInProgress"] }, 0] },
+                {
+                  $round: [
+                    {
+                      $multiply: [
+                        {
+                          $divide: [
+                            "$totalCompleted",
+                            { $add: ["$totalCompleted", "$totalInProgress"] },
+                          ],
+                        },
+                        100,
+                      ],
+                    },
+                    1, // Rounds to 1 decimal place (e.g., 45.2)
+                  ],
+                },
+                0,
+              ],
+            },
+          },
+        },
+      ]);
+
+      return ServiceResponse.success(
+        "Successfully fetched global learning outcomes",
+        data[0] || {
+          totalCompleted: 0,
+          totalInProgress: 0,
+          totalCertificates: 0,
+          totalTrackedEnrollments: 0,
+          completionRate: 0,
+        },
+        StatusCodes.OK,
+      );
+    } catch (error) {
+      return ServiceResponse.failure(
+        "Internal Server Error",
+        null,
+        StatusCodes.INTERNAL_SERVER_ERROR,
+      );
+    }
+  };
 }
 
 export const analyticsService = new AnalyticsService();

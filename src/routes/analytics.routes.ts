@@ -67,4 +67,11 @@ analyticsRouter.get(
   analyticsController.getUserEnrollmentStats,
 );
 
+analyticsRouter.get(
+  "/users/learning-outcomes",
+  isLocalAuthenticated,
+  checkUserRole(["admin", "superadmin"]),
+  analyticsController.getGlobalLearningOutcomes,
+);
+
 export default analyticsRouter;
