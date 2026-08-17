@@ -8,3 +8,4 @@ tmp
 /dist
 Dockerfile
 docker-compose.yml
+/src/utils/copy-db.ts

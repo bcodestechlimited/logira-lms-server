@@ -18,66 +18,83 @@ export const validateUser = async (req: ExtendedRequest, res: Response) => {
   }
 };
 
+const extractToken = (req: ExtendedRequest): string | null => {
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    const parts = req.headers.authorization.split("Bearer ");
+    if (parts.length === 2 && parts[1].trim()) {
+      return parts[1].trim();
+    }
+  }
+
+  if (req.cookies?.accessToken && typeof req.cookies.accessToken === "string") {
+    return req.cookies.accessToken.trim();
+  }
+
+  return null;
+};
+
+const processAuthentication = async (
+  req: ExtendedRequest,
+  res: Response,
+  next: NextFunction,
+) => {
+  const token = extractToken(req);
+
+  if (!token) {
+    return res.status(401).json({
+      message: "Unauthorized! Login to access this resource",
+    });
+  }
+
+  const decoded = verifyUserAccessToken(token);
+
+  if (!decoded) {
+    return res
+      .status(401)
+      .json({ message: "Unauthorized, Login to access resource" });
+  }
+
+  const user = await User.findById(decoded.id).select("+passwordVersion");
+  if (!user) {
+    return res
+      .status(404)
+      .json({ message: "User not found", success: false });
+  }
+
+  if (decoded.passwordVersion !== user.passwordVersion) {
+    return res.status(403).json({
+      message: "Password changed recently, login again to access resource",
+      success: false,
+    });
+  }
+
+  const userResponse = user.toObject();
+  const userObj: LocalUserType = {
+    _id: userResponse._id,
+    firstName: userResponse.firstName,
+    lastName: userResponse.lastName,
+    email: userResponse.email,
+    role: userResponse.role as string,
+    isAdmin: userResponse.isAdmin,
+    isEmailVerified: userResponse.isEmailVerified,
+    avatar: userResponse.avatar as string,
+    isActive: userResponse.isActive as boolean,
+  };
+
+  req.user = userObj;
+  next();
+};
+
 export const isLocalAuthenticated = async (
   req: ExtendedRequest,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    let token: string | null = null;
-
-    if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith("Bearer")
-    ) {
-      token = req.headers.authorization.split("Bearer ")[1];
-    } else if (req.cookies?.accessToken) {
-      token = req.cookies.accessToken;
-    }
-
-    if (!token) {
-      return res.status(401).json({
-        message: "Unauthorized! Login to access this resource",
-      });
-    }
-
-    const decoded = verifyUserAccessToken(token);
-
-    if (!decoded) {
-      return res
-        .status(401)
-        .json({ message: "Unauthorized, Login to access resource" });
-    }
-
-    const user = await User.findById(decoded.id).select("+passwordVersion");
-    if (!user) {
-      return res
-        .status(404)
-        .json({ message: "User not found", success: false });
-    }
-
-    if (decoded.passwordVersion !== user.passwordVersion) {
-      return res.status(403).json({
-        message: "Password changed recently, login again to access resource",
-        success: false,
-      });
-    }
-
-    const userResponse = user.toObject();
-    const userObj: LocalUserType = {
-      _id: userResponse._id,
-      firstName: userResponse.firstName,
-      lastName: userResponse.lastName,
-      email: userResponse.email,
-      role: userResponse.role as string,
-      isAdmin: userResponse.isAdmin,
-      isEmailVerified: userResponse.isEmailVerified,
-      avatar: userResponse.avatar as string,
-      isActive: userResponse.isActive as boolean,
-    };
-
-    req.user = userObj;
-    next();
+    await processAuthentication(req, res, next);
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: "Internal Server Error",
@@ -91,59 +108,7 @@ export const isAuthenticated = async (
   next: NextFunction,
 ) => {
   try {
-    let token: string | undefined;
-
-    if (req.cookies?.accessToken) {
-      token = req.cookies.accessToken;
-    } else if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith("Bearer ")
-    ) {
-      token = req.headers.authorization.split("Bearer ")[1];
-    }
-
-    if (!token) {
-      return res.status(401).json({
-        message: "Unauthorized! Login to access this resource",
-      });
-    }
-
-    const decoded = verifyUserAccessToken(token);
-    if (!decoded) {
-      return res
-        .status(401)
-        .json({ message: "Unauthorized, Login to access resource" });
-    }
-
-    const user = await User.findById(decoded.id).select("+passwordVersion");
-    if (!user) {
-      return res
-        .status(404)
-        .json({ message: "User not found", success: false });
-    }
-
-    if (decoded.passwordVersion !== user.passwordVersion) {
-      return res.status(403).json({
-        message: "Password changed recently, login again to access resource",
-        success: false,
-      });
-    }
-
-    const userResponse = user.toObject();
-    const userObj: LocalUserType = {
-      _id: userResponse._id,
-      firstName: userResponse.firstName,
-      lastName: userResponse.lastName,
-      email: userResponse.email,
-      role: userResponse.role as string,
-      isAdmin: userResponse.isAdmin,
-      isEmailVerified: userResponse.isEmailVerified,
-      avatar: userResponse.avatar as string,
-      isActive: userResponse.isActive as boolean,
-    };
-
-    req.user = userObj;
-    next();
+    await processAuthentication(req, res, next);
   } catch (error) {
     handleServiceResponse(
       ServiceResponse.failure(

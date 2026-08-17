@@ -57,7 +57,7 @@ router.get(
 router.get(
   "/my-enrolled-courses",
   apiLimiter,
-  isAuthenticated,
+  isLocalAuthenticated,
   userController.getMyEnrolledCourses,
 );
 
