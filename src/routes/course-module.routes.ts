@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { courseModuleController } from "../controllers/course-module.controller";
-import { checkUserRole, isAuthenticated } from "../Middlewares/Auth";
+import { checkUserRole, isAuthenticated, isLocalAuthenticated } from "../Middlewares/Auth";
 import { apiLimiter } from "../Middlewares/RateLimiter";
 
 const router = Router();
@@ -19,7 +19,7 @@ router
   .route("/")
   .post(
     apiLimiter,
-    isAuthenticated,
+    isLocalAuthenticated,
     checkUserRole(["admin", "superadmin"]),
     courseModuleController.create,
   );
@@ -27,15 +27,15 @@ router
 router
   .route("/:id")
   .put(
-    isAuthenticated,
+    isLocalAuthenticated,
     apiLimiter,
     checkUserRole(["admin", "superadmin"]),
     courseModuleController.update,
   )
-  .get(isAuthenticated, apiLimiter, courseModuleController.getCourseModuleById)
+  .get(isLocalAuthenticated, apiLimiter, courseModuleController.getCourseModuleById)
   .delete(
     apiLimiter,
-    isAuthenticated,
+    isLocalAuthenticated,
     checkUserRole(["admin", "superadmin"]),
     courseModuleController.deleteCourseModule,
   );

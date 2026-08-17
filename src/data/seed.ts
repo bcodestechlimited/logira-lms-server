@@ -26,7 +26,7 @@ async function importData() {
   try {
     await connectToDB();
     const course = await BCTCourse.insertMany(courseObj);
-    console.log("course", {course});
+
     console.log("Course data imported successfully");
   } catch (error) {
     console.log(error);

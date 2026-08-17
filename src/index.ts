@@ -8,7 +8,6 @@ import fileUpload from "express-fileupload";
 import { create } from "express-handlebars";
 import helmet from "helmet";
 import { createServer } from "http";
-import NodeCache from "node-cache";
 import path from "path";
 import pino from "pino";
 import { handleAllowedOrigins } from "./Middlewares/allowed-origins.ts";
@@ -30,8 +29,6 @@ import progressRouter from "./routes/progress.routes.ts";
 import templateRouter from "./routes/template.routes.ts";
 import { startAgenda } from "./Services/scheduler.service.ts";
 import "./utils/tracing.ts";
-
-export const nodeClient = new NodeCache({ stdTTL: 100, checkperiod: 120 });
 
 dotenv.config();
 
